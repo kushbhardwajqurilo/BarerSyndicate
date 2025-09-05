@@ -22,8 +22,8 @@ userRoutes.post("/login", userLogin);
 userRoutes.post("/forget-password", forgetUserPassword);
 userRoutes.post("/verify", verifyOTPS);
 userRoutes.post("/change-password", forgetPasswordAuth, changePassword);
-userRoutes.post("/otp-send", testOtp);
-userRoutes.post("/verify-otp", testOtpVerify);
+// userRoutes.post("/otp-send", testOtp);
+// userRoutes.post("/verify-otp", testOtpVerify);
 userRoutes.get("/all-users", adminAuthentication, getUserList);
 
 module.exports = userRoutes;
