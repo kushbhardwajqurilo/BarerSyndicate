@@ -38,7 +38,6 @@ exports.addToEquary = async (req, res) => {
       }
     };
 
-    // ✅ parse variants (string → array)
     variants =
       typeof variants === "string" ? safeParse(variants, []) : variants;
 
@@ -55,7 +54,6 @@ exports.addToEquary = async (req, res) => {
       });
     }
 
-    // ✅ Convert price & quantity → Number
     variants = variants.map((v) => ({
       price: Number(v.price),
       quantity: v.quantity,
@@ -85,20 +83,41 @@ exports.addToEquary = async (req, res) => {
         .json({ success: false, message: "Product not found" });
     }
 
-    const alreadyProduct = await enquaryModel.findOne({
+    //  Check if enquiry already exists
+    let alreadyProduct = await enquaryModel.findOne({
       user_id: id,
       productId,
     });
+
     if (alreadyProduct) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Enquiry Already Exist" });
+      //  Merge variants (add price if variant with same quantity exists, else push new)
+      variants.forEach((newVar) => {
+        let existing = alreadyProduct.variants.find(
+          (v) => v.quantity === newVar.quantity
+        );
+        if (existing) {
+          // same variant (by quantity) → add price
+          existing.price += newVar.price;
+        } else {
+          // new variant → push
+          alreadyProduct.variants.push(newVar);
+        }
+      });
+
+      await alreadyProduct.save();
+
+      return res.status(200).json({
+        success: true,
+        message: "Enquiry updated with new variants",
+        data: alreadyProduct,
+      });
     }
 
+    // First time enquiry → create new
     await enquaryModel.create({
       user_id: id,
       productId,
-      variants, // ✅ properly converted & validated variants
+      variants,
     });
 
     return res.status(200).json({ success: true, message: "Enquiry added..." });
