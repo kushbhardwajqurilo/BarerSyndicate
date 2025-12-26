@@ -13,9 +13,23 @@ const otpStore = {};
 const otpStoreTest = {};
 exports.userSignup = async (req, res, next) => {
   try {
+    const validation = {
+      name: "",
+      email: "",
+      password: "",
+      address: "",
+      gstnumber: "",
+      phone: "",
+    };
     const { name, email, password, address, gstnumber, phone } = req.body;
-    if (!name || !email || !password || !address || !gstnumber || !phone) {
-      return res.status(400).json({ message: "Please fill all the fields" });
+
+    for (let val of Object.keys(validation)) {
+      if (!req.body[val] || req.body[val].length === 0) {
+        return res.status(400).json({
+          success: false,
+          message: `${val} required`,
+        });
+      }
     }
     const gstTest = isValidGST(gstnumber);
     if (!gstTest) {
@@ -44,6 +58,7 @@ exports.userSignup = async (req, res, next) => {
         .status(400)
         .json({ message: "Faild to signup try again", success: false });
     }
+    console.log("user", user);
     return res.status(200).json({
       message: "singup successfully admin will approve your profile.",
       success: true,

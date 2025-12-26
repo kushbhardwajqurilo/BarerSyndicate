@@ -163,9 +163,18 @@ exports.getAllEnquary = async (req, res) => {
         message: "User Enquary not exist",
       });
     }
+    const totalPrice = Enquary.reduce((sum, product) => {
+      const variantSum = product.variants.reduce(
+        (vSum, v) => vSum + v.price,
+        0
+      );
+      return sum + variantSum;
+    }, 0);
+    console.log("total", totalPrice);
     return res.status(200).json({
       success: true,
       data: Enquary,
+      total: totalPrice,
     });
   } catch (error) {
     return res
@@ -231,6 +240,7 @@ exports.getSingleEnquary = async (req, res, next) => {
         message: "enquary not found",
       });
     }
+    console.log("total", total);
     return res.status(200).json({
       success: true,
       data: isEqnuary,
