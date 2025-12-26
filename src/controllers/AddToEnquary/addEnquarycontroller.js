@@ -240,7 +240,6 @@ exports.getSingleEnquary = async (req, res, next) => {
         message: "enquary not found",
       });
     }
-    console.log("total", total);
     return res.status(200).json({
       success: true,
       data: isEqnuary,
