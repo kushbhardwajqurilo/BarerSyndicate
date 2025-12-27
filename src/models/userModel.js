@@ -45,6 +45,10 @@ const userSchema = mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  iProof: {
+    type: String,
+    default: "idproof.png",
+  },
 });
 
 const userModel = mongoose.model(COLLECTIONS.user, userSchema);
