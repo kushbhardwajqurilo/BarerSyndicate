@@ -50,6 +50,7 @@ exports.userSignup = async (req, res, next) => {
     const uploadCloud = await cloudinary.uploader.upload(file.path, {
       folder: "BS_USER_IDENTIFICATION",
     });
+    console.log(uploadCloud);
     fs.unlinkSync(file.path);
     const payload = {
       name,

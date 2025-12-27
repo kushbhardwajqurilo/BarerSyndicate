@@ -45,7 +45,7 @@ const userSchema = mongoose.Schema({
     type: Boolean,
     default: false,
   },
-  iProof: {
+  idProof: {
     type: String,
     default: "idproof.png",
   },
