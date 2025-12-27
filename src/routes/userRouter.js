@@ -8,6 +8,7 @@ const {
   testOtpVerify,
   changePassword,
   getUserList,
+  deleteAndBlockUser,
 } = require("../controllers/userController/userController");
 const { adminAuthentication } = require("../middlewares/AdminAuthetication");
 const {
@@ -25,5 +26,6 @@ userRoutes.post("/change-password", forgetPasswordAuth, changePassword);
 // userRoutes.post("/otp-send", testOtp);
 // userRoutes.post("/verify-otp", testOtpVerify);
 userRoutes.get("/all-users", adminAuthentication, getUserList);
+userRoutes.post("/delete-block", deleteAndBlockUser);
 
 module.exports = userRoutes;

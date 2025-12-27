@@ -6,7 +6,7 @@ const connectDB = require("./src/database/MongoDBConnect");
 const PORT = process.env.PORT || 3000;
 
 async function startServer() {
-  await connectDB(); // connect once before starting server
+  await connectDB();
 
   const server = http.createServer(app);
 

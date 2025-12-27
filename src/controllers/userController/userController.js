@@ -58,7 +58,6 @@ exports.userSignup = async (req, res, next) => {
         .status(400)
         .json({ message: "Faild to signup try again", success: false });
     }
-    console.log("user", user);
     return res.status(200).json({
       message: "singup successfully admin will approve your profile.",
       success: true,
@@ -346,5 +345,84 @@ exports.getUserList = async (req, res) => {
     });
   } catch (error) {
     return res.json({ error, message: error.message });
+  }
+};
+
+exports.deleteAndBlockUser = async (req, res) => {
+  try {
+    const { user_id, action } = req.query;
+
+    if (!user_id || !action) {
+      return res.status(400).json({
+        status: false,
+        message: "user_id and action are required",
+      });
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(user_id)) {
+      return res.status(400).json({
+        status: false,
+        message: "invalid user_id",
+      });
+    }
+
+    const allowedActions = ["delete", "block", "unblock", "restore"];
+    if (!allowedActions.includes(action)) {
+      return res.status(400).json({
+        status: false,
+        message: "invalid action",
+      });
+    }
+
+    let update = {};
+
+    switch (action) {
+      case "delete":
+        update = {
+          isDelete: true,
+          status: "delete",
+        };
+        break;
+
+      case "block":
+        update = {
+          isBlock: true,
+          status: "block",
+        };
+        break;
+    }
+
+    const user = await userModel.findByIdAndUpdate(
+      {
+        _id: user_id,
+        isDelete: { $ne: true },
+        isBlock: { $ne: true },
+      },
+      { $set: update },
+      { new: true }
+    );
+
+    if (!user) {
+      return res.status(404).json({
+        status: false,
+        message: "user not found",
+      });
+    }
+
+    return res.status(200).json({
+      status: true,
+      message: `user ${action} successful`,
+      data: {
+        id: user._id,
+        isBlock: user.isBlock,
+        isDelete: user.isDelete,
+      },
+    });
+  } catch (error) {
+    console.error("updateUserStatus error:", error);
+    return res.status(500).json({
+      status: false,
+      message: "internal server error",
+    });
   }
 };
