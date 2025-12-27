@@ -34,7 +34,7 @@ const userSchema = mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ["approve", "pending", "delete", "block"],
+    enum: ["approve", "pending"],
     default: "pending",
   },
   isDelete: {

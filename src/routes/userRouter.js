@@ -14,10 +14,11 @@ const { adminAuthentication } = require("../middlewares/AdminAuthetication");
 const {
   forgetPasswordAuth,
 } = require("../middlewares/forgetPasswordMiddleware");
+const ImageUpload = require("../middlewares/ImageUploader");
 const { userAuthMiddleware } = require("../middlewares/userAuthMiddleware");
 
 const userRoutes = require("express").Router();
-userRoutes.post("/singup", userSignup);
+userRoutes.post("/singup", ImageUpload.single("file"), userSignup);
 userRoutes.get("/single-user/:id", getSingleUser);
 userRoutes.post("/login", userLogin);
 userRoutes.post("/forget-password", forgetUserPassword);

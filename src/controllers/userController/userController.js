@@ -1,6 +1,7 @@
 const { default: mongoose } = require("mongoose");
 const userModel = require("../../models/userModel");
 const otpModel = require("../../models/otepModel");
+const fs = require("fs");
 const {
   hashPassword,
   compareHashPassword,
@@ -9,9 +10,11 @@ const jwt = require("jsonwebtoken");
 const { isValidGST } = require("../../utitlies/gstValidation");
 const { genrateOTP } = require("../../utitlies/genrateOtp");
 const { default: axios } = require("axios");
+const cloudinary = require("../../config/cloudinary/cloudinary");
 const otpStore = {};
 const otpStoreTest = {};
 exports.userSignup = async (req, res, next) => {
+  const file = req.file;
   try {
     const validation = {
       name: "",
@@ -44,6 +47,10 @@ exports.userSignup = async (req, res, next) => {
         message: "Phone number should be 10 digits",
       });
     }
+    const uploadCloud = await cloudinary.uploader.upload(file.path, {
+      folder: "BS_USER_IDENTIFICATION",
+    });
+    fs.unlinkSync(file.path);
     const payload = {
       name,
       email,
@@ -51,6 +58,7 @@ exports.userSignup = async (req, res, next) => {
       address,
       gstnumber,
       phone,
+      idProof: uploadCloud.secure_url,
     };
     const user = await userModel.create(payload);
     if (!user) {
@@ -380,14 +388,12 @@ exports.deleteAndBlockUser = async (req, res) => {
       case "delete":
         update = {
           isDelete: true,
-          status: "delete",
         };
         break;
 
       case "block":
         update = {
           isBlock: true,
-          status: "block",
         };
         break;
     }
