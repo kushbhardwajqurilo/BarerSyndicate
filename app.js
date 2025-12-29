@@ -30,6 +30,7 @@ const adminRouter = require("./src/routes/adminRoute");
 const ProductsRouter = require("./src/routes/productsRoute");
 const enquiryRouter = require("./src/routes/enquaryRoute");
 const brandRouter = require("./src/routes/brandRouter");
+const SubCatRouter = require("./src/routes/subcategory.route");
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, "./public/upload"),
@@ -41,6 +42,7 @@ const baseURL = "/api/v1/";
 app.use(`${baseURL}user`, userRoutes);
 app.use(`${baseURL}admin`, adminRouter);
 app.use(`${baseURL}category`, CategoryRouter);
+app.use(`${baseURL}subcategory`, SubCatRouter);
 app.use(`${baseURL}product`, ProductsRouter);
 app.use(`${baseURL}enquiry`, enquiryRouter);
 app.use(`${baseURL}brands`, brandRouter);

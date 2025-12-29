@@ -1,19 +1,39 @@
+const { default: mongoose } = require("mongoose");
+const cloudinary = require("../../config/cloudinary/cloudinary");
 const brandModel = require("../../models/brandModel");
+const fs = require("fs");
 exports.addBrands = async (req, res) => {
   try {
+    const file = req.file;
+    if (!file || file.length === 0) {
+      return res
+        .status(400)
+        .json({ status: 400, message: "Brand Icons Missing" });
+    }
     const { name } = req.body;
     if (!name || name.length === 0) {
       return res
         .status(400)
         .json({ success: false, message: "brand name missing" });
     }
-    const insertBrand = await brandModel.create({ brand: name });
+    const icon_upload = await cloudinary.uploader.upload(file.path, {
+      folder: "BRAND_ICONS",
+    });
+    if (!icon_upload) {
+      fs.unlinkSync(file.path);
+    }
+    fs.unlinkSync(file.path);
+    const insertBrand = await brandModel.create({
+      brand: name,
+      icons: icon_upload.secure_url,
+    });
     if (!insertBrand) {
       return res.status(400).json({
         success: false,
         message: "Failed to add brand",
       });
     }
+
     return res
       .status(201)
       .json({ success: true, message: "Brand add successfull" });
@@ -46,7 +66,44 @@ exports.getBrands = async (req, res) => {
 
 exports.editBrand = async (req, res, next) => {
   try {
+    const { name } = req.body;
+    const { id } = req.params; // brand id
+
+    if (!name) {
+      return res.status(400).json({
+        success: false,
+        message: "Brand name is required",
+      });
+    }
+    console.log(mongoose.Types.ObjectId.isValid(id));
+    const updateData = {
+      name,
+    };
+    if (req.file) {
+      updateData.icon = req.file.path; // or req.file.filename
+    }
+
+    const updatedBrand = await brandModel.findByIdAndUpdate(id, updateData, {
+      new: true,
+    });
+
+    if (!updatedBrand) {
+      return res.status(404).json({
+        success: false,
+        message: "Brand not found",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Brand updated successfully",
+      data: updatedBrand,
+    });
   } catch (error) {
-    return res.status();
+    console.error(error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
   }
 };

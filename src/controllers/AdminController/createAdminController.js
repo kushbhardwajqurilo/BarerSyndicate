@@ -1,4 +1,6 @@
+const express = require("express");
 const adminModel = require("../../models/adminModel");
+const contactModel = require("../../models/contact.model");
 const userModel = require("../../models/userModel");
 const {
   hashPassword,
@@ -190,5 +192,100 @@ exports.searchUser = async (req, res, next) => {
     return res.status(200).json({ success: true, data: user });
   } catch (error) {
     return res.status(500).json({ message: error.message, success: false });
+  }
+};
+
+// admin contact
+exports.contactDetailsController = async (req, res, next) => {
+  try {
+    const validationFields = ["email", "address", "phone"];
+    console.log(req.body);
+    for (let fields of validationFields) {
+      if (
+        req.body[fields].toString().trim().length === 0 ||
+        !req.body[fields]
+      ) {
+        return res.status(400).json({
+          status: false,
+          message: `${fields} Missing`,
+        });
+      }
+    }
+    // const { email, address, phone } = req.body;
+    const payload = ({ email, address, phone } = req.body);
+    const insert = await contactModel.create(payload);
+    if (!insert) {
+      return res.status(400).json({
+        status: false,
+        message: "failed to contact details",
+      });
+    }
+    return res
+      .status(200)
+      .json({ status: true, message: "contact details add successfully" });
+  } catch (error) {
+    return res.status(500).json({
+      status: "Something Went Wrong",
+      message: error.message,
+    });
+  }
+};
+
+// get contact details
+exports.getContactDetailsController = async (req, res, next) => {
+  const contact = await contactModel.findOne();
+  if (!contact) {
+    return res.status(400).json({
+      status: false,
+      message: "no contact found",
+    });
+  }
+  return res.status(200).json({
+    status: false,
+    message: "contact fetch success",
+    data: contact,
+  });
+};
+
+// updare contact details
+exports.updateContactDetails = async (req, res) => {
+  try {
+    const validationFields = ["email", "address", "phone"];
+
+    for (let field of validationFields) {
+      if (!req.body[field] || req.body[field].toString().trim().length === 0) {
+        return res.status(400).json({
+          status: false,
+          message: `${field} is required`,
+        });
+      }
+    }
+
+    const { email, phone, address } = req.body;
+
+    const updatedContact = await contactModel.findOneAndUpdate(
+      {},
+      { email, phone, address },
+      { new: true }
+    );
+
+    if (!updatedContact) {
+      return res.status(404).json({
+        status: false,
+        message: "Contact details not found",
+      });
+    }
+
+    return res.status(200).json({
+      status: true,
+      message: "Contact details updated successfully",
+      data: updatedContact,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      status: false,
+      message: error.message,
+    });
   }
 };
