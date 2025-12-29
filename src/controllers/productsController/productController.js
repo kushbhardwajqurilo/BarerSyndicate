@@ -2,6 +2,7 @@ const { default: mongoose } = require("mongoose");
 const ProductModel = require("../../models/productModel");
 const cloudinary = require("../../config/cloudinary/cloudinary");
 const fs = require("fs");
+const productModel = require("../../models/productModel");
 exports.createProduct = async (req, res, next) => {
   try {
     const files = req.files;
@@ -310,4 +311,56 @@ exports.featuredProducts = async (req, res, next) => {
       message: err.message,
     });
   }
+};
+
+// active / deactive product
+exports.activeAndDeactivateProductController = async (req, res, next) => {
+  const { id } = req.params;
+  const { status } = req.body;
+
+  if (!id) {
+    return res
+      .status(400)
+      .json({ status: false, message: "product id missing" });
+  }
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(400).json({
+      status: false,
+      message: "Invalid Project ObjectId",
+    });
+  }
+  if (!["activate", "deactivate"].includes(status)) {
+    return res.status(400).json({
+      status: false,
+      message: "Status must be activate or deactivate",
+    });
+  }
+
+  const product = await productModel.findOne({ _id: id });
+  if (!product) {
+    return res.status(400).json({
+      status: false,
+      message: "product not found",
+    });
+  }
+  if (status === "deactivate") {
+    product.isActivate = false;
+    await product.save();
+    return res.status(200).json({
+      success: true,
+      message: "product deactivated.",
+    });
+  }
+  if (status === "activate") {
+    product.isActivate = true;
+    await product.save();
+    return res.status(200).json({
+      success: true,
+      message: "product activated.",
+    });
+  }
+  return res.status(400).json({
+    status: false,
+    message: "Try Again later.",
+  });
 };

@@ -6,6 +6,7 @@ const {
   deleteProduct,
   similarProduct,
   featuredProducts,
+  activeAndDeactivateProductController,
 } = require("../controllers/productsController/productController");
 const { adminAuthentication } = require("../middlewares/AdminAuthetication");
 const ImageUpload = require("../middlewares/ImageUploader");
@@ -35,4 +36,8 @@ ProductsRouter.delete(
 );
 ProductsRouter.get("/similar", similarProduct);
 ProductsRouter.get("/feature", featuredProducts);
+ProductsRouter.put(
+  "/active-deactive/:id",
+  activeAndDeactivateProductController
+);
 module.exports = ProductsRouter;
