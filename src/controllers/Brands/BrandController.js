@@ -43,3 +43,10 @@ exports.getBrands = async (req, res) => {
       .json({ success: false, message: error.message, error });
   }
 };
+
+exports.editBrand = async (req, res, next) => {
+  try {
+  } catch (error) {
+    return res.status();
+  }
+};
