@@ -2,29 +2,18 @@ const express = require("express");
 const cors = require("cors");
 const app = express();
 const cookie = require("cookie-parser");
-const corsOptions = {
-  origin: function (origin, callback) {
-    const allowedOrigins = [
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(
+  cors({
+    origin: [
       "http://localhost:3000",
       "https://ecom-nine-sand.vercel.app",
       "https://barbarsyndicate.vercel.app",
-    ];
-
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error("Not allowed by CORS"));
-    }
-  },
-  credentials: true,
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-};
-
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
-app.use(cors(corsOptions));
-app.options("*", cors(corsOptions));
+    ],
+    credentials: true,
+  })
+);
 app.use(cookie());
 const xlsx = require("xlsx");
 const path = require("path");
