@@ -4,16 +4,7 @@ const app = express();
 const cookie = require("cookie-parser");
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(
-  cors({
-    origin: [
-      "http://localhost:3000",
-      "https://ecom-nine-sand.vercel.app",
-      "https://barbarsyndicate.vercel.app",
-    ],
-    credentials: true,
-  })
-);
+app.use(cors("*"));
 app.use(cookie());
 const xlsx = require("xlsx");
 const path = require("path");
