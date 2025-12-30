@@ -10,12 +10,16 @@ exports.addBrands = async (req, res) => {
         .status(400)
         .json({ status: 400, message: "Brand Icons Missing" });
     }
-    const { name } = req.body;
-    if (!name || name.length === 0) {
-      return res
-        .status(400)
-        .json({ success: false, message: "brand name missing" });
+    const requiredFiled = ["name", "category", "subcategory"];
+    for (let fields of requiredFiled) {
+      if (!req.body[fields] || req.body[fields].toString().length === 0) {
+        return res
+          .status(400)
+          .json({ status: false, message: `${fields} required ` });
+      }
     }
+    const { name, category, subcategory } = req.body;
+
     const icon_upload = await cloudinary.uploader.upload(file.path, {
       folder: "BRAND_ICONS",
     });
@@ -25,6 +29,8 @@ exports.addBrands = async (req, res) => {
     fs.unlinkSync(file.path);
     const insertBrand = await brandModel.create({
       brand: name,
+      subcategory: subcategory,
+      category: category,
       icons: icon_upload.secure_url,
     });
     if (!insertBrand) {
@@ -58,6 +64,7 @@ exports.getBrands = async (req, res) => {
       data: brands,
     });
   } catch (error) {
+    console.log("err", error);
     return res
       .status(400)
       .json({ success: false, message: error.message, error });

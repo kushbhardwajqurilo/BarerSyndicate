@@ -7,6 +7,16 @@ const brandSchema = new mongoose.Schema({
     type: String,
     default: "icon.png",
   },
+  category: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "category",
+    required: [true, "category required"],
+  },
+  subcategory: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "subcategory",
+    required: [true, "subcategory"],
+  },
 });
 
 module.exports = mongoose.model("brand", brandSchema);
