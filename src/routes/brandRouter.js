@@ -16,7 +16,7 @@ brandRouter.post(
   addBrands
 );
 brandRouter.get(
-  "/",
+  "/getall",
   adminAuthentication,
   roleAuthetication("admin"),
   getBrands
