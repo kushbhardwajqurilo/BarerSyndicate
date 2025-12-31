@@ -6,9 +6,17 @@ const productModel = require("../../models/productModel");
 exports.createProduct = async (req, res, next) => {
   try {
     const files = req.files;
-
-    let { name, description, categoryId, points, variants, isFeature, brand } =
-      req.body;
+    console.log(req.body);
+    let {
+      name,
+      description,
+      categoryId,
+      subcategoryId,
+      points,
+      variants,
+      isFeature,
+      brand,
+    } = req.body;
     // Validate required fields
     if (!name || !description || !categoryId || !brand) {
       return res
@@ -65,6 +73,7 @@ exports.createProduct = async (req, res, next) => {
       name,
       description,
       categoryId,
+      subcategoryId,
       images,
       points,
       variants,
