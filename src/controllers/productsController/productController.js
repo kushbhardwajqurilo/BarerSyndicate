@@ -94,7 +94,7 @@ exports.createProduct = async (req, res, next) => {
 exports.getAllProducts = async (req, res, next) => {
   try {
     const page = parseInt(req.query.page) || 1;
-    const limit = 8;
+    const limit = 20;
     const skip = (page - 1) * limit;
 
     const products = await ProductModel.find({}).skip(skip).limit(limit);
@@ -137,6 +137,12 @@ exports.getSingleProduct = async (req, res, next) => {
 
 exports.updateProduct = async (req, res, next) => {
   try {
+    const requiredFiled = [
+      "name",
+      "description",
+      "categoryId",
+      "subcategoryId",
+    ];
     const { id } = req.params;
 
     // Validate MongoDB ObjectId
@@ -144,15 +150,28 @@ exports.updateProduct = async (req, res, next) => {
       return res.status(400).json({ message: "Invalid product ID" });
     }
 
-    const { name, description, categoryId, variants, brand, points } = req.body;
+    for (let fields of requiredFiled) {
+      if (
+        req.body[fields].toString().trim().length === 0 ||
+        req.body[fields] === undefined
+      ) {
+        return res.status(400).json({
+          status: false,
+          message: `${fields} required`,
+        });
+      }
+    }
+    const {
+      name,
+      description,
+      categoryId,
+      subcategoryId,
+      variants,
+      brand,
+      points,
+    } = req.body;
 
     // Basic validation
-    if (!name || !description || !categoryId) {
-      return res
-        .status(400)
-        .json({ message: "Please fill all the required fields" });
-    }
-
     if (!mongoose.Types.ObjectId.isValid(categoryId)) {
       return res.status(400).json({ message: "Invalid categoryId" });
     }
@@ -187,6 +206,7 @@ exports.updateProduct = async (req, res, next) => {
       name,
       description,
       categoryId,
+      subcategoryId,
       brand,
       variants,
       points,

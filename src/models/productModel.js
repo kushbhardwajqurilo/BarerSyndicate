@@ -18,6 +18,11 @@ const productSchema = new mongoose.Schema(
       required: [true, "categoryId is required"],
       ref: "Category",
     },
+    subcategoryId: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: [true, "subcategory is required"],
+      ref: "subcategory",
+    },
     variants: { type: [variantSchema], default: [] },
     description: {
       type: String,
