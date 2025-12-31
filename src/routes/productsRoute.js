@@ -16,7 +16,7 @@ const ProductsRouter = require("express").Router();
 ProductsRouter.post(
   "/",
   adminAuthentication,
-  ImageUpload.array("image", 5),
+  ImageUpload.array("image", 7),
   roleAuthetication("admin"),
   createProduct
 );

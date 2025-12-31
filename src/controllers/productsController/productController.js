@@ -7,13 +7,6 @@ exports.createProduct = async (req, res, next) => {
   try {
     const files = req.files;
 
-    // Require at least 5 images
-    if (!files || files.length < 5) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Please upload at least 5 images" });
-    }
-
     let { name, description, categoryId, points, variants, isFeature, brand } =
       req.body;
     // Validate required fields
@@ -290,27 +283,25 @@ exports.similarProduct = async (req, res, next) => {
 };
 
 // featuered products
-exports.featuredProducts = async (req, res, next) => {
-  try {
-    const featuered = await ProductModel.find({ isFeature: true }).select(
-      "-__v"
-    );
-    if (!featuered) {
-      return res.status(404).json({
-        success: false,
-        message: "failed to fetch...",
-      });
-    }
-    return res.status(200).json({
-      success: true,
-      data: featuered,
-    });
-  } catch (err) {
-    return res.status(500).json({
-      success: false,
-      message: err.message,
-    });
-  }
+exports.featuredProducts = async (req, res) => {
+  const DAYS = 7;
+  const LIMIT = 5;
+
+  const products = await productModel
+    .find({
+      isFeature: true,
+      isActivate: true,
+      createdAt: {
+        $gte: new Date(Date.now() - DAYS * 24 * 60 * 60 * 1000),
+      },
+    })
+    .sort({ createdAt: -1 })
+    .limit(LIMIT);
+
+  res.status(200).json({
+    status: true,
+    data: products,
+  });
 };
 
 // active / deactive product

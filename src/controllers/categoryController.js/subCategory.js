@@ -1,6 +1,6 @@
 const { default: mongoose } = require("mongoose");
 const subCategoryModel = require("../../models/subCategory.model");
-
+const { ObjectId } = require("mongodb");
 //add sub category controller
 exports.addSubCat = async function (req, res, next) {
   try {
@@ -185,9 +185,9 @@ exports.aggregate = async (req, res, next) => {
       { $match: { _id: new ObjectId(query) } },
       {
         $lookup: {
-          from: "subsubcategories",
-          localField: "_id",
-          foreignField: "subcatid",
+          from: "category",
+          localField: "catId",
+          foreignField: "_id",
           as: "sucatdata",
         },
       },
@@ -205,9 +205,57 @@ exports.aggregate = async (req, res, next) => {
       });
     }
   } catch (err) {
+    console.log("err", err);
     res.json({
       status: "failed",
       message: "something went wrong try again to sync",
+    });
+  }
+};
+
+exports.getSubCatByCate = async (req, res) => {
+  try {
+    const { catId } = req.query;
+
+    // 1️⃣ Validate category id
+    if (!catId) {
+      return res.status(400).json({
+        status: false,
+        message: "Category id is required",
+      });
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(catId)) {
+      return res.status(400).json({
+        status: false,
+        message: "Invalid category id",
+      });
+    }
+
+    // 2️⃣ Fetch subcategories (FAST)
+    const subCategories = await subCategoryModel
+      .find({ category: catId })
+      .select("_id name slug")
+      .lean();
+
+    // 3️⃣ Empty result check
+    if (!subCategories.length) {
+      return res.status(404).json({
+        status: false,
+        message: "No subcategories found",
+      });
+    }
+
+    // 4️⃣ Success response
+    return res.status(200).json({
+      status: true,
+      message: "Subcategories fetched successfully",
+      data: subCategories,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      status: false,
+      message: "Internal server error",
     });
   }
 };
