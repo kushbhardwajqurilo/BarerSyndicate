@@ -210,7 +210,8 @@ exports.updateProduct = async (req, res, next) => {
         .status(400)
         .json({ message: "Points must be an array of strings" });
     }
-
+    if (req.file) {
+    }
     const payload = {
       name,
       description,
@@ -255,7 +256,7 @@ exports.deleteProduct = async (req, res, next) => {
         .status(400)
         .json({ message: "Product not found", success: false });
     }
-    return res.status(500).json({
+    return res.status(200).json({
       success: true,
       message: "peroduct delete",
     });
