@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 
 const SubCategorySchema = new mongoose.Schema({
+  icon: { type: String, required: [true, "subcategory icon required"] },
   subCatName: { type: String, required: true, unique: true },
   subCatTitle: {
     type: String,

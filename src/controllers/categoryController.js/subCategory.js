@@ -1,6 +1,7 @@
 const { default: mongoose } = require("mongoose");
 const subCategoryModel = require("../../models/subCategory.model");
 const { ObjectId } = require("mongodb");
+const cloudinary = require("../../config/cloudinary/cloudinary");
 //add sub category controller
 exports.addSubCat = async function (req, res, next) {
   try {
@@ -15,15 +16,25 @@ exports.addSubCat = async function (req, res, next) {
         message: "Invalid Category id",
       });
     }
+    const file = await cloudinary.uploader.upload(req.file.path, {
+      folder: "BS-category-image",
+    });
+    if (!file) {
+      return req.status(400).json({
+        status: false,
+        message: "failed to upload icon",
+      });
+    }
+    subCat.icon = file.secure_url;
     const resData = await subCategoryModel.create(subCat);
     if (resData) {
       res.json({
-        status: "success",
+        status: true,
         message: "subcategory added",
       });
     } else {
       res.json({
-        status: "failed",
+        status: false,
         message: "unable to add subcategory",
       });
     }
