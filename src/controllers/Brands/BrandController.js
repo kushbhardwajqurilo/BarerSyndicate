@@ -75,7 +75,7 @@ exports.editBrand = async (req, res, next) => {
   try {
     const { name } = req.body;
     const { id } = req.params; // brand id
-
+    console.log({ file: req.file, name, id });
     if (!name) {
       return res.status(400).json({
         success: false,
@@ -84,10 +84,14 @@ exports.editBrand = async (req, res, next) => {
     }
     console.log(mongoose.Types.ObjectId.isValid(id));
     const updateData = {
-      name,
+      brand: name,
     };
+
     if (req.file) {
-      updateData.icon = req.file.path; // or req.file.filename
+      const upload = await cloudinary.uploader.upload(req.file.path, {
+        folder: "BRAND_ICONS",
+      });
+      updateData.icons = upload.secure_url; // or req.file.filename
     }
 
     const updatedBrand = await brandModel.findByIdAndUpdate(id, updateData, {
