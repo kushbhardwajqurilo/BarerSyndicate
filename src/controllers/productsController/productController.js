@@ -102,13 +102,14 @@ exports.createProduct = async (req, res, next) => {
 // get all products
 exports.getAllProducts = async (req, res, next) => {
   try {
-    const { subcategory, brand } = req.query;
+    const { category, subcategory, brand } = req.query;
     const page = parseInt(req.query.page) || 1;
     const limit = 20;
     const skip = (page - 1) * limit;
     let filter = {};
     if (subcategory) filter.subcategoryId = subcategory;
     if (brand) filter.brand = brand;
+    if (category) filter.categoryId = category;
     console.log(filter);
     const products = await ProductModel.find(filter).skip(skip).limit(limit);
 
