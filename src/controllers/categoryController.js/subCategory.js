@@ -270,3 +270,5 @@ exports.getSubCatByCate = async (req, res) => {
     });
   }
 };
+
+// get product by subcastegory
