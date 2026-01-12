@@ -27,4 +27,5 @@ SubCatRouter.put("/updatesubcat/:_id", updateSubCat);
 SubCatRouter.get("/aggregate/:id", aggregate);
 SubCatRouter.get("/searchSubCategory", searchSubCategory);
 // SubCatRouter.get("/getSubcategory");
+SubCatRouter.get("/subcategorybycategory", getSubCat);
 module.exports = SubCatRouter;

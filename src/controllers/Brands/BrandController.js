@@ -118,3 +118,56 @@ exports.editBrand = async (req, res, next) => {
     });
   }
 };
+
+exports.brandsCategory = async (req, res, next) => {
+  const { brand, cat_id } = req.query;
+
+  if (!brand) {
+    return res.status(400).json({
+      status: false,
+      message: "brand missing",
+    });
+  }
+
+  if (!cat_id) {
+    return res.status(400).json({
+      status: false,
+      message: "category id missing",
+    });
+  }
+
+  const data = await brandModel.aggregate([
+    {
+      $match: {
+        _id: new mongoose.Types.ObjectId(brand),
+      },
+    },
+    {
+      $lookup: {
+        from: "categories", // category collection name
+        localField: "category",
+        foreignField: "_id",
+        as: "category",
+      },
+    },
+    {
+      $unwind: "$category",
+    },
+    {
+      $match: {
+        "category._id": new mongoose.Types.ObjectId(cat_id),
+      },
+    },
+    {
+      $project: {
+        _id: 1,
+        categoryname: "$category.categoryname",
+      },
+    },
+  ]);
+
+  return res.status(200).json({
+    status: true,
+    data: data,
+  });
+};

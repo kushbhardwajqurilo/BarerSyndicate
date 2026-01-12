@@ -2,6 +2,7 @@ const {
   addBrands,
   getBrands,
   editBrand,
+  brandsCategory,
 } = require("../controllers/Brands/BrandController");
 const { adminAuthentication } = require("../middlewares/AdminAuthetication");
 const ImageUpload = require("../middlewares/ImageUploader");
@@ -28,4 +29,5 @@ brandRouter.put(
   ImageUpload.single("file"),
   editBrand
 );
+brandRouter.get("/get-brand-category", brandsCategory);
 module.exports = brandRouter;
