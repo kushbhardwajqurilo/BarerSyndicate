@@ -73,7 +73,7 @@ exports.getBrands = async (req, res) => {
 
 exports.editBrand = async (req, res, next) => {
   try {
-    const { name } = req.body;
+    const { name, category, subcategory } = req.body;
     const { id } = req.params; // brand id
     console.log({ file: req.file, name, id });
     if (!name) {
@@ -85,6 +85,8 @@ exports.editBrand = async (req, res, next) => {
     console.log(mongoose.Types.ObjectId.isValid(id));
     const updateData = {
       brand: name,
+      category,
+      subcategory,
     };
 
     if (req.file) {
