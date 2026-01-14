@@ -374,7 +374,7 @@ exports.deleteAndBlockUser = async (req, res) => {
       });
     }
 
-    const allowedActions = ["delete", "block", "unblock", "restore"];
+    const allowedActions = ["delete", "block", "unblock", "reject"];
     if (!allowedActions.includes(action)) {
       return res.status(400).json({
         status: false,
@@ -401,6 +401,10 @@ exports.deleteAndBlockUser = async (req, res) => {
         update = {
           isDelete: false,
           isBlock: false,
+        };
+      case "reject":
+        update = {
+          status: "reject",
         };
     }
 
