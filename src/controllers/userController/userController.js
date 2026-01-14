@@ -98,75 +98,67 @@ exports.getSingleUser = async (req, res, next) => {
 };
 
 //user login
-exports.userLogin = async (req, res) => {
+exports.userLogin = async (req, res, next) => {
   try {
     const { email, password } = req.body;
-
     if (!email || !password) {
-      return res.status(400).json({
-        success: false,
-        message: "email and password missing",
-      });
+      return res.status(400).json({ message: "email and password missing" });
     }
-
-    // Fetch only required fields (FASTER)
-    const user = await userModel
-      .findOne({ email })
-      .select("_id password status");
-
-    if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: "Email not registered",
-      });
+    const isUser = await userModel.findOne({ email });
+    if (!isUser) {
+      return res.status(404).json({ message: "Email not register" });
     }
-
-    const isMatch = await compareHashPassword(password, user.password);
-    if (!isMatch) {
-      return res.status(401).json({
-        success: false,
-        message: "Invalid password",
+    const match = await compareHashPassword(password, isUser.password);
+    if (match) {
+      const token = jwt.sign({ id: isUser._id }, process.env.customerKey, {
+        expiresIn: "7d",
       });
-    }
-
-    // Handle user status early
-    const statusMessages = {
-      pending: "Your Profile is not approved by admin please wait for approval",
-      reject: "Your Profile Has Been Rejected",
-      delete: "Your Profile Has Been Deleted",
-      block: "Your Profile Has Been Blocked",
-    };
-    console.log(user);
-    if (user.status !== "approved") {
-      return res.status(200).json({
-        success: true,
-        message: statusMessages[user.status],
+      res.cookie("token", token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        maxAge: 7 * 24 * 60 * 60 * 1000,
       });
+      if (isUser) {
+        if (isUser.status === "pending") {
+          return res.status(200).json({
+            success: true,
+            message:
+              "Your Profile is not approved by admin please wait for approval",
+          });
+        } else if (isUser.status === "reject") {
+          return res.status(200).json({
+            success: true,
+            message: "Your Profile Has Been Rejected",
+          });
+        } else if (isUser.status === "delete") {
+          return res.status(200).json({
+            success: true,
+            message: "Your Profile Has Been Deleted ",
+          });
+        } else if (isUser.status === "block") {
+          return res.status(200).json({
+            success: true,
+            message: "Your Profile Has Been blocked ",
+          });
+        }
+
+        return res.status(200).json({
+          success: true,
+          message: "login Success",
+          aprroval: "aprroved",
+          token,
+          id: isUser._id,
+        });
+      } else {
+        return res.status(400).json({ message: "invalid password" });
+      }
     }
-    //
-    // Generate token only for approved users
-    const token = jwt.sign({ id: user._id }, process.env.customerKey, {
-      expiresIn: "7d",
-    });
-
-    res.cookie("token", token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-    });
-
     return res.status(200).json({
-      success: true,
-      message: "Login success",
-      approval: "approved",
-      token,
-      id: user._id,
+      success: false,
+      message: "Invalid password ",
     });
   } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: error.message,
-    });
+    return res.status(500).json({ success: false, message: error.message });
   }
 };
 
