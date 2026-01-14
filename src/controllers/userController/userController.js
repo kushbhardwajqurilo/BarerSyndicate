@@ -136,7 +136,7 @@ exports.userLogin = async (req, res) => {
       delete: "Your Profile Has Been Deleted",
       block: "Your Profile Has Been Blocked",
     };
-
+    console.log(user);
     if (user.status !== "approved") {
       return res.status(200).json({
         success: true,
