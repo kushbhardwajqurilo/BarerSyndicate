@@ -359,7 +359,7 @@ exports.getUserList = async (req, res) => {
 exports.deleteAndBlockUser = async (req, res) => {
   try {
     const { user_id, action } = req.query;
-
+    console.log(req.query);
     if (!user_id || !action) {
       return res.status(400).json({
         status: false,
@@ -405,10 +405,12 @@ exports.deleteAndBlockUser = async (req, res) => {
           isDelete: false,
           isBlock: false,
         };
+        break;
       case "reject":
         update = {
           status: "reject",
         };
+        break;
     }
 
     const user = await userModel.findByIdAndUpdate(
