@@ -401,6 +401,7 @@ exports.deleteAndBlockUser = async (req, res) => {
 
       case "unblock":
         update = {
+          status: "pending",
           isDelete: false,
           isBlock: false,
         };
