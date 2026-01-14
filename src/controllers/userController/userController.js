@@ -396,6 +396,12 @@ exports.deleteAndBlockUser = async (req, res) => {
           isBlock: true,
         };
         break;
+
+      case "unblock":
+        update = {
+          isDelete: false,
+          isBlock: false,
+        };
     }
 
     const user = await userModel.findByIdAndUpdate(
