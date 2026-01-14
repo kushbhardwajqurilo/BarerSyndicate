@@ -387,12 +387,14 @@ exports.deleteAndBlockUser = async (req, res) => {
     switch (action) {
       case "delete":
         update = {
+          status: "delete",
           isDelete: true,
         };
         break;
 
       case "block":
         update = {
+          status: "block",
           isBlock: true,
         };
         break;
