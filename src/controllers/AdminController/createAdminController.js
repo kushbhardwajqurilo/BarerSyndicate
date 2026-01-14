@@ -159,7 +159,7 @@ exports.approveUser = async (req, res, next) => {
         .status(404)
         .json({ message: "User not found", success: false });
     }
-    await user.updateOne({ status: "approved" });
+    await user.updateOne({ status: "approve" });
     user.save();
     return res.status(200).json({ success: true, message: "User approved" });
   } catch (err) {
