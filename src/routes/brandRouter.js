@@ -16,12 +16,7 @@ brandRouter.post(
   ImageUpload.single("file"),
   addBrands
 );
-brandRouter.get(
-  "/getall",
-  adminAuthentication,
-  roleAuthetication("admin", "user"),
-  getBrands
-);
+brandRouter.get("/getall", getBrands);
 brandRouter.put(
   "/:id",
   adminAuthentication,
