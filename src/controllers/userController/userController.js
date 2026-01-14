@@ -143,7 +143,7 @@ exports.userLogin = async (req, res) => {
         message: statusMessages[user.status],
       });
     }
-
+    //
     // Generate token only for approved users
     const token = jwt.sign({ id: user._id }, process.env.customerKey, {
       expiresIn: "7d",
