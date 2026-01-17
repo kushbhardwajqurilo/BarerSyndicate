@@ -3,6 +3,7 @@ const {
   getBrands,
   editBrand,
   brandsCategory,
+  deleteBrand,
 } = require("../controllers/Brands/BrandController");
 const { adminAuthentication } = require("../middlewares/AdminAuthetication");
 const ImageUpload = require("../middlewares/ImageUploader");
@@ -14,7 +15,7 @@ brandRouter.post(
   adminAuthentication,
   roleAuthetication("admin"),
   ImageUpload.single("file"),
-  addBrands
+  addBrands,
 );
 brandRouter.get("/getall", getBrands);
 brandRouter.put(
@@ -22,7 +23,13 @@ brandRouter.put(
   adminAuthentication,
   roleAuthetication("admin"),
   ImageUpload.single("file"),
-  editBrand
+  editBrand,
 );
 brandRouter.get("/get-brand-category", brandsCategory);
+brandRouter.delete(
+  "/delete-brand",
+  adminAuthentication,
+  roleAuthetication("admin"),
+  deleteBrand,
+);
 module.exports = brandRouter;

@@ -16,9 +16,9 @@ const ProductsRouter = require("express").Router();
 ProductsRouter.post(
   "/",
   adminAuthentication,
-  ImageUpload.array("image", 7),
   roleAuthetication("admin"),
-  createProduct
+  ImageUpload.array("image", 7),
+  createProduct,
 );
 ProductsRouter.get("/", getAllProducts);
 ProductsRouter.get("/single/:id", getSingleProduct);
@@ -26,18 +26,19 @@ ProductsRouter.put(
   "/:id",
   adminAuthentication,
   roleAuthetication("admin"),
-  updateProduct
+  ImageUpload.array("image", 7),
+  updateProduct,
 );
 ProductsRouter.delete(
   "/:id",
   adminAuthentication,
   roleAuthetication("admin"),
-  deleteProduct
+  deleteProduct,
 );
 ProductsRouter.get("/similar", similarProduct);
 ProductsRouter.get("/feature", featuredProducts);
 ProductsRouter.put(
   "/active-deactive/:id",
-  activeAndDeactivateProductController
+  activeAndDeactivateProductController,
 );
 module.exports = ProductsRouter;

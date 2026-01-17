@@ -149,104 +149,74 @@ exports.getSingleProduct = async (req, res, next) => {
 
 // update product
 
-exports.updateProduct = async (req, res, next) => {
+exports.updateProduct = async (req, res) => {
   try {
-    const requiredFiled = [
-      "name",
-      "description",
-      "categoryId",
-      "subcategoryId",
-    ];
     const { id } = req.params;
+    let { positions } = req.body;
 
-    // Validate MongoDB ObjectId
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({ message: "Invalid product ID" });
     }
 
-    for (let fields of requiredFiled) {
-      if (
-        req.body[fields].toString().trim().length === 0 ||
-        req.body[fields] === undefined
-      ) {
-        return res.status(400).json({
-          status: false,
-          message: `${fields} required`,
-        });
-      }
-    }
-    const {
-      name,
-      description,
-      categoryId,
-      subcategoryId,
-      variants,
-      brand,
-      points,
-    } = req.body;
-
-    // Basic validation
-    if (!mongoose.Types.ObjectId.isValid(categoryId)) {
-      return res.status(400).json({ message: "Invalid categoryId" });
-    }
-
-    if (brand && !mongoose.Types.ObjectId.isValid(brand)) {
-      return res.status(400).json({ message: "Invalid brand ID" });
-    }
-
-    // Validate variants (if provided)
-    if (variants && !Array.isArray(variants)) {
-      return res.status(400).json({ message: "Variants must be an array" });
-    }
-
-    if (variants) {
-      for (const variant of variants) {
-        if (!variant.price || !variant.quantity) {
-          return res
-            .status(400)
-            .json({ message: "Each variant must have price and quantity" });
-        }
-      }
-    }
-
-    // Validate points (if provided)
-    if (points && !Array.isArray(points)) {
-      return res
-        .status(400)
-        .json({ message: "Points must be an array of strings" });
-    }
-    if (req.file) {
-    }
-    const payload = {
-      name,
-      description,
-      categoryId,
-      subcategoryId,
-      brand,
-      variants,
-      points,
-    };
-
-    // Remove undefined fields (so partial update works cleanly)
-    Object.keys(payload).forEach(
-      (key) => payload[key] === undefined && delete payload[key]
-    );
-
-    const product = await ProductModel.findByIdAndUpdate(
-      id,
-      { $set: payload },
-      { new: true }
-    );
-
+    const product = await ProductModel.findById(id);
     if (!product) {
       return res.status(404).json({ message: "Product not found" });
     }
 
-    return res
-      .status(200)
-      .json({ success: true, message: "product update successfull" });
+    if (typeof positions === "string") {
+      positions = JSON.parse(positions);
+    }
+
+    if (!Array.isArray(positions)) {
+      return res.status(400).json({ message: "positions must be an array" });
+    }
+
+    if (!req.files || !req.files.length) {
+      return res.status(400).json({ message: "No files provided" });
+    }
+
+    if (positions.length !== req.files.length) {
+      return res.status(400).json({
+        message: "positions and images count must be same",
+      });
+    }
+
+    /* ---------- FIXED LOOP ---------- */
+    for (let i = 0; i < req.files.length; i++) {
+      const file = req.files[i];
+      const imgIndex = Number(positions[i]);
+
+      if (
+        isNaN(imgIndex) ||
+        imgIndex < 0 ||
+        imgIndex >= product.images.length
+      ) {
+        return res.status(400).json({
+          message: `Invalid image position: ${positions[i]}`,
+        });
+      }
+
+      const uploadResult = await cloudinary.uploader.upload(file.path, {
+        folder: "BS Products",
+      });
+
+      fs.unlinkSync(file.path); // cleanup local file
+
+      product.images[imgIndex] = uploadResult.secure_url;
+    }
+
+    await product.save(); // ✅ NOW data exists
+
+    return res.status(200).json({
+      success: true,
+      message: "Product images updated successfully",
+      data: product.images,
+    });
   } catch (err) {
-    return res.status(500).json({ message: err.message, success: false });
+    return res.status(500).json({
+      success: false,
+      message: err.message,
+    });
   }
 };
 

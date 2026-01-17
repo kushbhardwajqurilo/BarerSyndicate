@@ -53,7 +53,7 @@ exports.addBrands = async (req, res) => {
 //  get all brands
 exports.getBrands = async (req, res) => {
   try {
-    const brands = await brandModel.find({});
+    const brands = await brandModel.find({ isDelete: false });
     if (!brands || brands.length === 0) {
       return res
         .status(400)
@@ -171,5 +171,47 @@ exports.brandsCategory = async (req, res, next) => {
   return res.status(200).json({
     status: true,
     data: data,
+  });
+};
+
+// delete brand
+exports.deleteBrand = async (req, res, next) => {
+  const { brand_id } = req.query;
+
+  // 1. brand_id missing
+  if (!brand_id) {
+    return res.status(400).json({
+      status: false,
+      message: "brand id missing",
+    });
+  }
+
+  // 2. Invalid ObjectId
+  if (!mongoose.Types.ObjectId.isValid(brand_id)) {
+    return res.status(400).json({
+      status: false,
+      message: "Invalid brand id",
+    });
+  }
+
+  // 3. Find & soft delete
+  const brand = await brandModel.findOneAndUpdate(
+    { _id: brand_id, isDelete: false },
+    { $set: { isDelete: true } },
+    { new: true },
+  );
+
+  // 4. Brand not found
+  if (!brand) {
+    return res.status(404).json({
+      status: false,
+      message: "Brand not found",
+    });
+  }
+
+  // 5. Success
+  return res.status(200).json({
+    status: true,
+    message: "Brand deleted successfully",
   });
 };

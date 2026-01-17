@@ -17,6 +17,10 @@ const brandSchema = new mongoose.Schema({
     ref: "subcategory",
     required: [true, "subcategory"],
   },
+  isDelete: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 module.exports = mongoose.model("brand", brandSchema);
