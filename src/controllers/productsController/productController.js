@@ -488,3 +488,54 @@ exports.searchProducts = async (req, res) => {
     });
   }
 };
+
+//  delete product price
+exports.deleteProductPrice = async (req, res, next) => {
+  try {
+    console.log("sss");
+    const { p_id, position } = req.query;
+    console.log("query", req.query);
+    if (!position) {
+      return res.status(400).json({
+        status: false,
+        message: "Variant Postion Requried",
+      });
+    }
+
+    const products = await ProductModel.findOne({ _id: p_id });
+    if (!products) {
+      return res.status(400).json({
+        status: false,
+        message: "Product not found try again later",
+      });
+    }
+    if (!Array.isArray(products.variants) || products.variants.length === 0) {
+      return res.status(400).json({
+        status: false,
+        message: "Variants not found try again later",
+        variants: [],
+      });
+    }
+    const index = Number(position);
+    if (position < 0 || index >= products.variants.length) {
+      return res.status(400).json({
+        status: false,
+        message: "Invalid Varinat Position",
+      });
+    }
+
+    products.variants.splice(index, 1);
+    await products.save();
+    return res.status(201).json({
+      status: true,
+      message: "Price delete successfully",
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      status: false,
+      message: "Something Went Wrong",
+      error: error.message,
+    });
+  }
+};

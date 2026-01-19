@@ -8,6 +8,7 @@ const {
   featuredProducts,
   activeAndDeactivateProductController,
   searchProducts,
+  deleteProductPrice,
 } = require("../controllers/productsController/productController");
 const { adminAuthentication } = require("../middlewares/AdminAuthetication");
 const ImageUpload = require("../middlewares/ImageUploader");
@@ -20,6 +21,12 @@ ProductsRouter.post(
   roleAuthetication("admin"),
   ImageUpload.array("image", 7),
   createProduct,
+);
+ProductsRouter.delete(
+  "/delete-price",
+  adminAuthentication,
+  roleAuthetication("admin"),
+  deleteProductPrice,
 );
 ProductsRouter.get("/", getAllProducts);
 ProductsRouter.get("/single/:id", getSingleProduct);
@@ -44,4 +51,5 @@ ProductsRouter.put(
 );
 
 ProductsRouter.get("/search-product", searchProducts);
+
 module.exports = ProductsRouter;
