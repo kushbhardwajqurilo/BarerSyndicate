@@ -148,74 +148,154 @@ exports.getSingleProduct = async (req, res, next) => {
 };
 
 // update product
-
 exports.updateProduct = async (req, res) => {
   try {
     const { id } = req.params;
     let { positions } = req.body;
-
+    /* ---------------- VALIDATE PRODUCT ID ---------------- */
     if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({ message: "Invalid product ID" });
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid product ID" });
     }
 
     const product = await ProductModel.findById(id);
     if (!product) {
-      return res.status(404).json({ message: "Product not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Product not found" });
     }
 
-    if (typeof positions === "string") {
-      positions = JSON.parse(positions);
+    /* ===================== HELPERS ===================== */
+
+    const cleanString = (val) => {
+      if (typeof val !== "string") return val;
+      return val.replace(/"/g, "").replace(/,+$/, "").trim();
+    };
+
+    const cleanObjectId = (val) => {
+      if (!val) return undefined;
+      val = cleanString(val);
+      return mongoose.Types.ObjectId.isValid(val) ? val : undefined;
+    };
+
+    const safeJsonParse = (val, fallback) => {
+      try {
+        if (typeof val !== "string") return val;
+        return JSON.parse(val.replace(/,+$/, ""));
+      } catch {
+        return fallback;
+      }
+    };
+
+    /* ===================== UPDATE NORMAL FIELDS ===================== */
+
+    const {
+      name,
+      categoryId,
+      subcategoryId,
+      description,
+      brand,
+      points,
+      variants,
+    } = req.body;
+
+    if (name) product.name = cleanString(name);
+
+    const catId = cleanObjectId(categoryId);
+    if (catId) product.categoryId = catId;
+
+    const subCatId = cleanObjectId(subcategoryId);
+    if (subCatId) product.subcategoryId = subCatId;
+
+    const brandId = cleanObjectId(brand);
+    if (brandId) product.brand = brandId;
+
+    if (description) product.description = cleanString(description);
+
+    if (points) {
+      product.points = safeJsonParse(points, []);
+      product.markModified("points");
     }
 
-    if (!Array.isArray(positions)) {
-      return res.status(400).json({ message: "positions must be an array" });
+    if (variants) {
+      product.variants = safeJsonParse(variants, []);
+      product.markModified("variants");
     }
 
-    if (!req.files || !req.files.length) {
-      return res.status(400).json({ message: "No files provided" });
-    }
+    /* ===================== IMAGES (OPTIONAL) ===================== */
 
-    if (positions.length !== req.files.length) {
-      return res.status(400).json({
-        message: "positions and images count must be same",
-      });
-    }
-
-    /* ---------- FIXED LOOP ---------- */
-    for (let i = 0; i < req.files.length; i++) {
-      const file = req.files[i];
-      const imgIndex = Number(positions[i]);
-
-      if (
-        isNaN(imgIndex) ||
-        imgIndex < 0 ||
-        imgIndex >= product.images.length
-      ) {
+    if (req.files && req.files.length > 0) {
+      // positions REQUIRED only when files exist
+      if (!positions) {
         return res.status(400).json({
-          message: `Invalid image position: ${positions[i]}`,
+          success: false,
+          message: "positions is required when updating images",
         });
       }
 
-      const uploadResult = await cloudinary.uploader.upload(file.path, {
-        folder: "BS Products",
+      if (typeof positions === "string") {
+        positions = JSON.parse(positions);
+      }
+
+      if (!Array.isArray(positions)) {
+        return res.status(400).json({
+          success: false,
+          message: "positions must be an array",
+        });
+      }
+
+      const updatedIndexes = [];
+
+      for (let i = 0; i < req.files.length; i++) {
+        const file = req.files[i];
+        const imgIndex = Number(positions[i]);
+
+        if (
+          Number.isNaN(imgIndex) ||
+          imgIndex < 0 ||
+          imgIndex >= product.images.length
+        ) {
+          fs.unlinkSync(file.path);
+          continue;
+        }
+
+        const uploadResult = await cloudinary.uploader.upload(file.path, {
+          folder: "BS Products",
+        });
+
+        fs.unlinkSync(file.path);
+
+        product.images.set(imgIndex, uploadResult.secure_url);
+        updatedIndexes.push(imgIndex);
+      }
+
+      product.markModified("images");
+
+      await product.save();
+
+      return res.status(200).json({
+        success: true,
+        message: "Product updated successfully (with images)",
+        updatedIndexes,
+        data: product,
       });
-
-      fs.unlinkSync(file.path); // cleanup local file
-
-      product.images[imgIndex] = uploadResult.secure_url;
     }
 
-    await product.save(); // ✅ NOW data exists
+    /* ===================== SAVE (NO IMAGES) ===================== */
+
+    await product.save();
 
     return res.status(200).json({
       success: true,
-      message: "Product images updated successfully",
-      data: product.images,
+      message: "Product updated successfully",
+      data: product,
     });
-  } catch (err) {
+  } catch (error) {
+    console.error("Update Product Error:", error);
     return res.status(500).json({
       success: false,
-      message: err.message,
+      message: error.message,
     });
   }
 };
@@ -359,4 +439,52 @@ exports.activeAndDeactivateProductController = async (req, res, next) => {
     status: false,
     message: "Try Again later.",
   });
+};
+
+// seacrh product
+
+exports.searchProducts = async (req, res) => {
+  try {
+    const {
+      search, // keyword for name + description
+      page = 1,
+    } = req.query;
+
+    const query = {};
+
+    /* ---------------- NAME + DESCRIPTION SEARCH ---------------- */
+    if (search) {
+      query.$or = [
+        { name: { $regex: search, $options: "i" } },
+        { description: { $regex: search, $options: "i" } },
+      ];
+    }
+
+    /* ---------------- PAGINATION ---------------- */
+    const skip = (Number(page) - 1) * 20;
+
+    const [products, total] = await Promise.all([
+      ProductModel.find(query)
+        .skip(skip)
+        .limit(Number(20))
+        .sort({ createdAt: -1 }),
+
+      ProductModel.countDocuments(query),
+    ]);
+
+    return res.status(200).json({
+      success: true,
+      total,
+      page: Number(page),
+      limit: 20,
+      results: products.length,
+      data: products,
+    });
+  } catch (error) {
+    console.error("Search Products Error:", error);
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
 };
