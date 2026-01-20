@@ -111,7 +111,10 @@ exports.getAllProducts = async (req, res, next) => {
     if (brand) filter.brand = brand;
     if (category) filter.categoryId = category;
     console.log(filter);
-    const products = await ProductModel.find(filter).skip(skip).limit(limit);
+    const products = await ProductModel.find(filter)
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
 
     const totalProducts = await ProductModel.countDocuments(filter);
 
@@ -219,7 +222,21 @@ exports.updateProduct = async (req, res) => {
     }
 
     if (variants) {
-      product.variants = safeJsonParse(variants, []);
+      const incomingVariants = safeJsonParse(variants, []);
+
+      const mergedVariants = product.variants.map((oldVar, index) => {
+        const newVar = incomingVariants[index];
+        if (!newVar) return oldVar;
+
+        return {
+          ...oldVar.toObject(),
+          ...newVar,
+          quantity:
+            newVar.quantity !== undefined ? newVar.quantity : oldVar.quantity, // 🔥 keep old quantity
+        };
+      });
+
+      product.variants = mergedVariants;
       product.markModified("variants");
     }
 
@@ -536,6 +553,66 @@ exports.deleteProductPrice = async (req, res, next) => {
       status: false,
       message: "Something Went Wrong",
       error: error.message,
+    });
+  }
+};
+
+exports.addNewVariants = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    let { variants } = req.body;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid product id",
+      });
+    }
+
+    //  Validate variants array
+    if (!Array.isArray(variants) || variants.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "variants must be a non-empty array",
+      });
+    }
+
+    //  Find product
+    const product = await ProductModel.findById(id);
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        message: "Product not found",
+      });
+    }
+
+    //  Clean & validate variants
+    const cleanedVariants = variants.map((v, index) => {
+      if (!v.price || !v.quantity) {
+        throw new Error(`price and quantity required at index ${index}`);
+      }
+
+      return {
+        price: String(v.price).trim(),
+        quantity: String(v.quantity).trim(),
+      };
+    });
+
+    //  Push only into variants
+    product.variants.push(...cleanedVariants);
+    product.markModified("variants");
+
+    await product.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Variants added successfully",
+      data: product.variants,
+    });
+  } catch (error) {
+    return res.status(400).json({
+      success: false,
+      message: error.message,
     });
   }
 };

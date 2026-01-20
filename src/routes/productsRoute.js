@@ -9,6 +9,7 @@ const {
   activeAndDeactivateProductController,
   searchProducts,
   deleteProductPrice,
+  addNewVariants,
 } = require("../controllers/productsController/productController");
 const { adminAuthentication } = require("../middlewares/AdminAuthetication");
 const ImageUpload = require("../middlewares/ImageUploader");
@@ -51,5 +52,10 @@ ProductsRouter.put(
 );
 
 ProductsRouter.get("/search-product", searchProducts);
-
+ProductsRouter.post(
+  "/add-variants/:id",
+  adminAuthentication,
+  roleAuthetication("admin"),
+  addNewVariants,
+);
 module.exports = ProductsRouter;
