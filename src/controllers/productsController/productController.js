@@ -151,22 +151,191 @@ exports.getSingleProduct = async (req, res, next) => {
 };
 
 // update product
+// exports.updateProduct = async (req, res) => {
+//   try {
+//     const { id } = req.params;
+//     let { positions } = req.body;
+//     /* ---------------- VALIDATE PRODUCT ID ---------------- */
+//     if (!mongoose.Types.ObjectId.isValid(id)) {
+//       return res
+//         .status(400)
+//         .json({ success: false, message: "Invalid product ID" });
+//     }
+
+//     const product = await ProductModel.findById(id);
+//     if (!product) {
+//       return res
+//         .status(404)
+//         .json({ success: false, message: "Product not found" });
+//     }
+
+//     /* ===================== HELPERS ===================== */
+
+//     const cleanString = (val) => {
+//       if (typeof val !== "string") return val;
+//       return val.replace(/"/g, "").replace(/,+$/, "").trim();
+//     };
+
+//     const cleanObjectId = (val) => {
+//       if (!val) return undefined;
+//       val = cleanString(val);
+//       return mongoose.Types.ObjectId.isValid(val) ? val : undefined;
+//     };
+
+//     const safeJsonParse = (val, fallback) => {
+//       try {
+//         if (typeof val !== "string") return val;
+//         return JSON.parse(val.replace(/,+$/, ""));
+//       } catch {
+//         return fallback;
+//       }
+//     };
+
+//     /* ===================== UPDATE NORMAL FIELDS ===================== */
+
+//     const {
+//       name,
+//       categoryId,
+//       subcategoryId,
+//       description,
+//       brand,
+//       points,
+//       variants,
+//     } = req.body;
+
+//     if (name) product.name = cleanString(name);
+
+//     const catId = cleanObjectId(categoryId);
+//     if (catId) product.categoryId = catId;
+
+//     const subCatId = cleanObjectId(subcategoryId);
+//     if (subCatId) product.subcategoryId = subCatId;
+
+//     const brandId = cleanObjectId(brand);
+//     if (brandId) product.brand = brandId;
+
+//     if (description) product.description = cleanString(description);
+
+//     if (points) {
+//       product.points = safeJsonParse(points, []);
+//       product.markModified("points");
+//     }
+
+//     if (variants) {
+//       const incomingVariants = safeJsonParse(variants, []);
+
+//       const mergedVariants = product.variants.map((oldVar, index) => {
+//         const newVar = incomingVariants[index];
+//         if (!newVar) return oldVar;
+
+//         return {
+//           ...oldVar.toObject(),
+//           ...newVar,
+//           quantity:
+//             newVar.quantity !== undefined ? newVar.quantity : oldVar.quantity, // 🔥 keep old quantity
+//         };
+//       });
+
+//       product.variants = mergedVariants;
+//       product.markModified("variants");
+//     }
+
+//     /* ===================== IMAGES (OPTIONAL) ===================== */
+
+//     if (req.files && req.files.length > 0) {
+//       // positions REQUIRED only when files exist
+//       if (!positions) {
+//         return res.status(400).json({
+//           success: false,
+//           message: "positions is required when updating images",
+//         });
+//       }
+
+//       if (typeof positions === "string") {
+//         positions = JSON.parse(positions);
+//       }
+
+//       if (!Array.isArray(positions)) {
+//         return res.status(400).json({
+//           success: false,
+//           message: "positions must be an array",
+//         });
+//       }
+
+//       const updatedIndexes = [];
+
+//       for (let i = 0; i < req.files.length; i++) {
+//         const file = req.files[i];
+//         const imgIndex = Number(positions[i]);
+
+//         if (
+//           Number.isNaN(imgIndex) ||
+//           imgIndex < 0 ||
+//           imgIndex >= product.images.length
+//         ) {
+//           fs.unlinkSync(file.path);
+//           continue;
+//         }
+
+//         const uploadResult = await cloudinary.uploader.upload(file.path, {
+//           folder: "BS Products",
+//         });
+
+//         fs.unlinkSync(file.path);
+
+//         product.images.set(imgIndex, uploadResult.secure_url);
+//         updatedIndexes.push(imgIndex);
+//       }
+
+//       product.markModified("images");
+
+//       await product.save();
+
+//       return res.status(200).json({
+//         success: true,
+//         message: "Product updated successfully (with images)",
+//         updatedIndexes,
+//         data: product,
+//       });
+//     }
+
+//     /* ===================== SAVE (NO IMAGES) ===================== */
+
+//     await product.save();
+
+//     return res.status(200).json({
+//       success: true,
+//       message: "Product updated successfully",
+//       data: product,
+//     });
+//   } catch (error) {
+//     console.error("Update Product Error:", error);
+//     return res.status(500).json({
+//       success: false,
+//       message: error.message,
+//     });
+//   }
+// };
+
 exports.updateProduct = async (req, res) => {
   try {
     const { id } = req.params;
     let { positions } = req.body;
-    /* ---------------- VALIDATE PRODUCT ID ---------------- */
+
+    /* ================= VALIDATE PRODUCT ID ================= */
     if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Invalid product ID" });
+      return res.status(400).json({
+        success: false,
+        message: "Invalid product ID",
+      });
     }
 
     const product = await ProductModel.findById(id);
     if (!product) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Product not found" });
+      return res.status(404).json({
+        success: false,
+        message: "Product not found",
+      });
     }
 
     /* ===================== HELPERS ===================== */
@@ -191,7 +360,7 @@ exports.updateProduct = async (req, res) => {
       }
     };
 
-    /* ===================== UPDATE NORMAL FIELDS ===================== */
+    /* ================= UPDATE NORMAL FIELDS ================= */
 
     const {
       name,
@@ -221,29 +390,28 @@ exports.updateProduct = async (req, res) => {
       product.markModified("points");
     }
 
-    if (variants) {
+    /* ================= VARIANTS (FULL REPLACE) ================= */
+
+    /* ================= VARIANTS (FULL REPLACE - AS IT IS) ================= */
+
+    if (variants !== undefined) {
       const incomingVariants = safeJsonParse(variants, []);
 
-      const mergedVariants = product.variants.map((oldVar, index) => {
-        const newVar = incomingVariants[index];
-        if (!newVar) return oldVar;
+      if (!Array.isArray(incomingVariants)) {
+        return res.status(400).json({
+          success: false,
+          message: "variants must be an array",
+        });
+      }
 
-        return {
-          ...oldVar.toObject(),
-          ...newVar,
-          quantity:
-            newVar.quantity !== undefined ? newVar.quantity : oldVar.quantity, // 🔥 keep old quantity
-        };
-      });
-
-      product.variants = mergedVariants;
+      // 🔥 AS IT IS SAVE, OLD REMOVE, NEW ADD
+      product.variants = incomingVariants;
       product.markModified("variants");
     }
 
-    /* ===================== IMAGES (OPTIONAL) ===================== */
+    /* ================= IMAGES (OPTIONAL) ================= */
 
     if (req.files && req.files.length > 0) {
-      // positions REQUIRED only when files exist
       if (!positions) {
         return res.status(400).json({
           success: false,
@@ -299,7 +467,7 @@ exports.updateProduct = async (req, res) => {
       });
     }
 
-    /* ===================== SAVE (NO IMAGES) ===================== */
+    /* ================= SAVE (NO IMAGES) ================= */
 
     await product.save();
 
@@ -615,4 +783,90 @@ exports.addNewVariants = async (req, res, next) => {
       message: error.message,
     });
   }
+};
+
+// add image in product
+exports.addNewImageInProduct = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    /* ---------- VALIDATION ---------- */
+    if (!id) {
+      return res.status(400).json({
+        status: false,
+        message: "Product Id Missing",
+      });
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({
+        status: false,
+        message: "Invalid Product Id",
+      });
+    }
+
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({
+        status: false,
+        message: "Image Required",
+      });
+    }
+
+    const product = await productModel.findById(id);
+    if (!product) {
+      req.files.forEach((file) => {
+        fs.existsSync(file.path) && fs.unlinkSync(file.path);
+      });
+
+      return res.status(404).json({
+        status: false,
+        message: "Product not found",
+      });
+    }
+
+    /* ---------- UPLOAD IMAGES ---------- */
+    const uploadedImages = [];
+
+    for (const file of req.files) {
+      const result = await cloudinary.uploader.upload(file.path, {
+        folder: "BS Products",
+      });
+
+      uploadedImages.push(result.secure_url);
+      fs.unlinkSync(file.path);
+    }
+
+    /* ---------- SAVE ---------- */
+    product.images.push(...uploadedImages);
+    await product.save();
+
+    return res.status(200).json({
+      status: true,
+      message: "Product images added successfully",
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      status: false,
+      message: error.message,
+    });
+  }
+};
+
+// new arrival product
+exports.getNewArrivalProduct = async (req, res, next) => {
+  const last7days = new Date();
+  last7days.setDate(last7days.getDate() - 7);
+
+  const products = await productModel
+    .find({ createdAt: { $gte: last7days } })
+    .sort({ createdAt: -1 })
+    .select("-__v -createdAt -updatedAt")
+    .lean();
+
+  return res.status(200).json({
+    status: false,
+    message: "New Arrival Product Fetch",
+    data: products,
+  });
 };

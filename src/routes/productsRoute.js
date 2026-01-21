@@ -10,6 +10,8 @@ const {
   searchProducts,
   deleteProductPrice,
   addNewVariants,
+  addNewImageInProduct,
+  getNewArrivalProduct,
 } = require("../controllers/productsController/productController");
 const { adminAuthentication } = require("../middlewares/AdminAuthetication");
 const ImageUpload = require("../middlewares/ImageUploader");
@@ -58,4 +60,12 @@ ProductsRouter.post(
   roleAuthetication("admin"),
   addNewVariants,
 );
+ProductsRouter.post(
+  "/add-image/:id",
+  adminAuthentication,
+  roleAuthetication("admin"),
+  ImageUpload.array("image", 7),
+  addNewImageInProduct,
+);
+ProductsRouter.get("/new-arrival", getNewArrivalProduct);
 module.exports = ProductsRouter;
