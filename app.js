@@ -9,6 +9,7 @@ const ProductsRouter = require("./src/routes/productsRoute");
 const enquiryRouter = require("./src/routes/enquaryRoute");
 const brandRouter = require("./src/routes/brandRouter");
 const SubCatRouter = require("./src/routes/subcategory.route");
+const bannerRouter = require("./src/routes/banner.routes");
 
 const app = express();
 
@@ -29,7 +30,7 @@ app.use(
       "X-Requested-With",
       "Accept",
     ],
-  })
+  }),
 );
 
 /* ================= ROUTES ================= */
@@ -42,6 +43,7 @@ app.use(`${baseURL}subcategory`, SubCatRouter);
 app.use(`${baseURL}product`, ProductsRouter);
 app.use(`${baseURL}enquiry`, enquiryRouter);
 app.use(`${baseURL}brands`, brandRouter);
+app.use(`${baseURL}banner`, bannerRouter);
 
 /* ================= GLOBAL ERROR HANDLER ================= */
 app.use((err, req, res, next) => {
