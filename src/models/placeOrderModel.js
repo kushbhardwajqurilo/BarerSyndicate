@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const placeOrder = new mongoose.Schema({
+const placeOrderSchema = new mongoose.Schema({
   orderId: {
     type: String,
     unique: true,
@@ -20,3 +20,6 @@ const placeOrder = new mongoose.Schema({
     image: { type: String, required: [true, "Product Image required"] },
   },
 });
+
+const PlaceOrder = mongoose.model("place_order", placeOrderSchema);
+module.exports = PlaceOrder;

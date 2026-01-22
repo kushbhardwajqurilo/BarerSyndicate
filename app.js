@@ -10,6 +10,7 @@ const enquiryRouter = require("./src/routes/enquaryRoute");
 const brandRouter = require("./src/routes/brandRouter");
 const SubCatRouter = require("./src/routes/subcategory.route");
 const bannerRouter = require("./src/routes/banner.routes");
+const OrderPlaceRouter = require("./src/routes/order.route");
 
 const app = express();
 
@@ -44,6 +45,7 @@ app.use(`${baseURL}product`, ProductsRouter);
 app.use(`${baseURL}enquiry`, enquiryRouter);
 app.use(`${baseURL}brands`, brandRouter);
 app.use(`${baseURL}banner`, bannerRouter);
+app.use(`${baseURL}order`, OrderPlaceRouter);
 
 /* ================= GLOBAL ERROR HANDLER ================= */
 app.use((err, req, res, next) => {

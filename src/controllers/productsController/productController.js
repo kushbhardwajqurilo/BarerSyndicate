@@ -112,6 +112,10 @@ exports.getAllProducts = async (req, res, next) => {
     if (category) filter.categoryId = category;
     console.log(filter);
     const products = await ProductModel.find(filter)
+      .populate({
+        path: "subcategoryId",
+        select: "subCatName",
+      })
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit);
