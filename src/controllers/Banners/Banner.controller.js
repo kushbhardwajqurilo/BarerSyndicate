@@ -4,13 +4,19 @@ const bannerModel = require("../../models/banner.model");
 const { default: mongoose } = require("mongoose");
 exports.addBanners = async (req, res, next) => {
   const { files } = req;
+  const { type, title } = req.body;
   let insetData = [];
   for (let file of files) {
     const upload = await cloudinary.uploader.upload(file.path, {
       folder: "Barber_Syndicate_Banners",
     });
     if (upload) {
-      insetData.push({ banner: upload.secure_url, path_key: upload.public_id });
+      insetData.push({
+        banner: upload.secure_url,
+        path_key: upload.public_id,
+        type,
+        title: title,
+      });
     } else {
       return res.json({ status: false, message: "Unable to upload" });
     }
@@ -32,7 +38,15 @@ exports.addBanners = async (req, res, next) => {
 
 // get 4 latest banner for website
 exports.getBannersForWebsite = async (req, res, next) => {
-  const banners = await bannerModel.find({}).sort({ createdAt: -1 }).limit(4);
+  const { type } = req.query;
+  const filter = {};
+  if (type && ["mobile", "website"].includes(type)) {
+    filter.type = type; // ✅ correct
+  }
+  const banners = await bannerModel
+    .find(filter)
+    .sort({ createdAt: -1 })
+    .limit(4);
   if (!banners) {
     return res.status(200).json({
       status: false,
@@ -72,6 +86,8 @@ exports.getAllBannersForAdmin = async (req, res, next) => {
     return {
       _id: val._id,
       banner: val.banner,
+      type: val.type,
+      title: val.type,
     };
   });
   return res.status(200).json({

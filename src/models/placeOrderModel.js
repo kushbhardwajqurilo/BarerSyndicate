@@ -15,11 +15,15 @@ const placeOrderSchema = new mongoose.Schema({
       ref: "product",
       required: [true, "Product id is required"],
     },
-    price: { type: Number, required: [true, "Product Price required"] },
-    quantity: { type: String, required: [true, "Quantity required"] },
+    name: { type: String, required: [true, "product name Required"] },
+    variants: [
+      {
+        price: { type: String, required: [true, "Price Required"] },
+        quantity: { type: String, required: [true, "qunatiy required"] },
+      },
+    ],
     image: { type: String, required: [true, "Product Image required"] },
   },
 });
-
 const PlaceOrder = mongoose.model("place_order", placeOrderSchema);
 module.exports = PlaceOrder;

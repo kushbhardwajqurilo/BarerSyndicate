@@ -2,6 +2,7 @@ const {
   addBanners,
   deleteBanner,
   getAllBannersForAdmin,
+  getBannersForWebsite,
 } = require("../controllers/Banners/Banner.controller");
 const { adminAuthentication } = require("../middlewares/AdminAuthetication");
 const ImageUpload = require("../middlewares/ImageUploader");
@@ -28,5 +29,5 @@ bannerRouter.delete(
   roleAuthetication("admin"),
   deleteBanner,
 );
-
+bannerRouter.get("/banner-for-ui", getBannersForWebsite);
 module.exports = bannerRouter;

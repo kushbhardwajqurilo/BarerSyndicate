@@ -9,6 +9,15 @@ const bannerSchema = mongoose.Schema(
       type: String,
       required: [true, "Path Key Required"],
     },
+    title: {
+      type: String,
+      default: null,
+    },
+    type: {
+      type: "String",
+      enum: ["mobile", "website"],
+      required: [true],
+    },
   },
   { timestamps: true },
 );
