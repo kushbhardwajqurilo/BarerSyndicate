@@ -1,8 +1,39 @@
 const {
   orderPlaceController,
+  userOrderList,
+  OrderListOfAdmin,
+  orderApprovedOrReject,
 } = require("../controllers/OrdersController/order.controller");
+const { adminAuthentication } = require("../middlewares/AdminAuthetication");
+const { roleAuthetication } = require("../middlewares/roleBaseAuthe");
+const { userAuthMiddleware } = require("../middlewares/userAuthMiddleware");
 
 const OrderPlaceRouter = require("express").Router();
 
-OrderPlaceRouter.post("/place-order", orderPlaceController);
+OrderPlaceRouter.post(
+  "/place-order",
+  userAuthMiddleware,
+  roleAuthetication("user"),
+  orderPlaceController,
+);
+// user orders  list
+OrderPlaceRouter.get(
+  "/user-orders/:id",
+  userAuthMiddleware,
+  roleAuthetication("user"),
+  userOrderList,
+);
+OrderPlaceRouter.get(
+  "/order-list",
+  adminAuthentication,
+  roleAuthetication("admin"),
+  OrderListOfAdmin,
+);
+OrderPlaceRouter.get(
+  "/confrim-order",
+  adminAuthentication,
+  roleAuthetication("admin"),
+  orderApprovedOrReject,
+);
+
 module.exports = OrderPlaceRouter;

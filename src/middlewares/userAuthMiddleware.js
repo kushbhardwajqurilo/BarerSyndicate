@@ -10,6 +10,7 @@ exports.userAuthMiddleware = async (req, res, next) => {
       return res.status(401).json({ message: "verfication failed" });
     }
     req.user_id = user._id;
+    req.role = user.role;
     next();
   } catch (err) {
     res.status(401).json({ message: err.message, success: false });

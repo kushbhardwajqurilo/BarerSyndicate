@@ -93,7 +93,7 @@ exports.addToEquary = async (req, res) => {
       //  Merge variants (add price if variant with same quantity exists, else push new)
       variants.forEach((newVar) => {
         let existing = alreadyProduct.variants.find(
-          (v) => v.quantity === newVar.quantity
+          (v) => v.quantity === newVar.quantity,
         );
         if (existing) {
           // same variant (by quantity) → add price
@@ -166,7 +166,7 @@ exports.getAllEnquary = async (req, res) => {
     const totalPrice = Enquary.reduce((sum, product) => {
       const variantSum = product.variants.reduce(
         (vSum, v) => vSum + v.price,
-        0
+        0,
       );
       return sum + variantSum;
     }, 0);
@@ -279,3 +279,5 @@ exports.getAllEnquaryToAdmin = async (req, res) => {
     });
   }
 };
+
+// <------- price incrase or decrease ------------>

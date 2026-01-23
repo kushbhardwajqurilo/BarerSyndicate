@@ -110,9 +110,13 @@ exports.userLogin = async (req, res, next) => {
     }
     const match = await compareHashPassword(password, isUser.password);
     if (match) {
-      const token = jwt.sign({ id: isUser._id }, process.env.customerKey, {
-        expiresIn: "7d",
-      });
+      const token = jwt.sign(
+        { id: isUser._id, role: "user" },
+        process.env.customerKey,
+        {
+          expiresIn: "7d",
+        },
+      );
       res.cookie("token", token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
@@ -436,7 +440,7 @@ exports.deleteAndBlockUser = async (req, res) => {
         isBlock: { $ne: true },
       },
       { $set: update },
-      { new: true }
+      { new: true },
     );
 
     if (!user) {
