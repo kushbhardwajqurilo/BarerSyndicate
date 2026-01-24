@@ -7,7 +7,7 @@ const enquaryModel = require("../../models/enquaryModel");
 exports.addToEquary = async (req, res) => {
   try {
     let { productId, id, variants } = req.body;
-
+    console.log("variat", variants);
     if (!id) {
       return res
         .status(200)
@@ -92,16 +92,8 @@ exports.addToEquary = async (req, res) => {
     if (alreadyProduct) {
       //  Merge variants (add price if variant with same quantity exists, else push new)
       variants.forEach((newVar) => {
-        let existing = alreadyProduct.variants.find(
-          (v) => v.quantity === newVar.quantity,
-        );
-        if (existing) {
-          // same variant (by quantity) → add price
-          existing.price += newVar.price;
-        } else {
-          // new variant → push
-          alreadyProduct.variants.push(newVar);
-        }
+        // new variant → push
+        alreadyProduct.variants.push(newVar);
       });
 
       await alreadyProduct.save();
