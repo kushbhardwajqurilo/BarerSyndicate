@@ -5,11 +5,11 @@ const PlaceOrder = require("../../models/placeOrderModel");
 
 exports.orderPlaceController = async (req, res, next) => {
   try {
-    const { user_id, equiry_id } = req.body;
+    const { user_id, enquiry_id } = req.body;
 
     /* ================= VALIDATIONS ================= */
 
-    if (!equiry_id || !Array.isArray(equiry_id) || equiry_id.length === 0) {
+    if (!enquiry_id || !Array.isArray(enquiry_id) || enquiry_id.length === 0) {
       return res.status(400).json({
         status: false,
         message: "Enquiry Ids array missing",
@@ -30,7 +30,7 @@ exports.orderPlaceController = async (req, res, next) => {
       });
     }
 
-    for (let id of equiry_id) {
+    for (let id of enquiry_id) {
       if (!mongoose.Types.ObjectId.isValid(id)) {
         return res.status(400).json({
           status: false,
@@ -43,7 +43,7 @@ exports.orderPlaceController = async (req, res, next) => {
 
     const userEnquarys = await enquaryModel
       .find({
-        _id: { $in: equiry_id },
+        _id: { $in: enquiry_id },
         user_id,
       })
       .populate({
@@ -269,4 +269,5 @@ exports.orderApprovedOrReject = async (req, res, next) => {
     next(error);
   }
 };
-//
+// pdf order data for admin
+exports.orderPdf = async (req, res, next) => {};
