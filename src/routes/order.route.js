@@ -4,6 +4,7 @@ const {
   OrderListOfAdmin,
   orderApprovedOrReject,
   UserOrderDetails,
+  SingleUserOrderDetails,
 } = require("../controllers/OrdersController/order.controller");
 const { adminAuthentication } = require("../middlewares/AdminAuthetication");
 const { roleAuthetication } = require("../middlewares/roleBaseAuthe");
@@ -42,5 +43,11 @@ OrderPlaceRouter.get(
   adminAuthentication,
   roleAuthetication("admin"),
   UserOrderDetails,
+);
+OrderPlaceRouter.get(
+  "/single-order-details/:id",
+  adminAuthentication,
+  roleAuthetication("admin"),
+  SingleUserOrderDetails,
 );
 module.exports = OrderPlaceRouter;

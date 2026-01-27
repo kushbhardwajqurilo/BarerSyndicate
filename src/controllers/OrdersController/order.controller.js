@@ -208,8 +208,7 @@ exports.OrderListOfAdmin = async (req, res, next) => {
 exports.orderApprovedOrReject = async (req, res, next) => {
   try {
     const { admin_id } = req;
-    const { id, type } = req.params;
-
+    const { id, type } = req.query;
     // ---------- ADMIN VALIDATION ----------
     if (!admin_id) {
       return res.status(400).json({
@@ -241,7 +240,7 @@ exports.orderApprovedOrReject = async (req, res, next) => {
     }
 
     // ---------- TYPE VALIDATION ----------
-    if (!["approved", "reject"].includes(type)) {
+    if (!["approved", "cancel"].includes(type)) {
       return res.status(400).json({
         status: false,
         message: "Invalid action type",
@@ -265,7 +264,6 @@ exports.orderApprovedOrReject = async (req, res, next) => {
     res.status(200).json({
       status: true,
       message: `Order ${type} successfully`,
-      data: order,
     });
   } catch (error) {
     next(error);
@@ -322,6 +320,72 @@ exports.UserOrderDetails = async (req, res, next) => {
       success: true,
       totalUsers: result.length,
       data: filterData,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// get single user order list
+exports.SingleUserOrderDetails = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    // ✅ ObjectId validation
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid user id",
+      });
+    }
+
+    const orders = await PlaceOrder.find({
+      userId: id, // 🔥 mongoose string ko khud ObjectId bana leta hai
+      status: { $ne: "cancel" },
+    }).populate("userId");
+
+    if (!orders.length) {
+      return res.status(404).json({
+        success: false,
+        message: "No orders found for this user",
+      });
+    }
+
+    const usersMap = {};
+
+    for (const order of orders) {
+      if (!order.userId) continue;
+
+      const userId = order.userId._id.toString();
+
+      if (!usersMap[userId]) {
+        usersMap[userId] = {
+          userId,
+          name: order.userId.name,
+          email: order.userId.email,
+          addres: order.userId.address,
+          phone: order.userId.phone,
+          gst: order.userId.gstnumber,
+          orders: [],
+        };
+      }
+
+      usersMap[userId].orders.push({
+        _id: order._id,
+        orderId: order.orderId,
+        product: order.product,
+        status: order.status,
+        createdAt: order.createdAt,
+        updatedAt: order.updatedAt,
+      });
+    }
+
+    const result = Object.values(usersMap);
+
+    return res.status(200).json({
+      success: true,
+      totalOrders: result[0].orders.length,
+      data: result[0], // 👈 single user ka data
     });
   } catch (error) {
     next(error);

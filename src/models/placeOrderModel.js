@@ -27,7 +27,7 @@ const placeOrderSchema = new mongoose.Schema(
     },
     status: {
       type: "String",
-      enum: ["aprroved", "cancel", "pending"],
+      enum: ["approved", "cancel", "pending"],
       default: "pending",
     },
   },
