@@ -3,6 +3,7 @@ const {
   userOrderList,
   OrderListOfAdmin,
   orderApprovedOrReject,
+  UserOrderDetails,
 } = require("../controllers/OrdersController/order.controller");
 const { adminAuthentication } = require("../middlewares/AdminAuthetication");
 const { roleAuthetication } = require("../middlewares/roleBaseAuthe");
@@ -36,4 +37,10 @@ OrderPlaceRouter.get(
   orderApprovedOrReject,
 );
 
+OrderPlaceRouter.get(
+  "/userlist",
+  adminAuthentication,
+  roleAuthetication("admin"),
+  UserOrderDetails,
+);
 module.exports = OrderPlaceRouter;

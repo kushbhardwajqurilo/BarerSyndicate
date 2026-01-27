@@ -2,6 +2,7 @@ const { default: mongoose } = require("mongoose");
 const productModel = require("../../models/productModel");
 const enquaryModel = require("../../models/enquaryModel");
 const PlaceOrder = require("../../models/placeOrderModel");
+const userModel = require("../../models/userModel");
 
 exports.orderPlaceController = async (req, res, next) => {
   try {
@@ -272,3 +273,57 @@ exports.orderApprovedOrReject = async (req, res, next) => {
 };
 // pdf order data for admin
 exports.orderPdf = async (req, res, next) => {};
+
+// order count and coustimer detils
+exports.UserOrderDetails = async (req, res, next) => {
+  try {
+    // maan lo ye tumhara DB response hai
+    const orders = await PlaceOrder.find({
+      status: { $ne: "cancel" },
+    }).populate("userId");
+
+    const usersMap = {};
+
+    for (const order of orders) {
+      const userId = order.userId._id.toString();
+
+      // agar user map me nahi hai
+      if (!usersMap[userId]) {
+        usersMap[userId] = {
+          userId: userId,
+          name: order.userId.name,
+          email: order.userId.email,
+          orders: [],
+        };
+      }
+
+      // order push karo
+      usersMap[userId].orders.push({
+        _id: order._id,
+        orderId: order.orderId,
+        product: order.product,
+        status: order.status,
+        createdAt: order.createdAt,
+        updatedAt: order.updatedAt,
+      });
+    }
+
+    // object ko array me convert
+    const result = Object.values(usersMap);
+    const filterData = result?.map((val) => {
+      return {
+        userId: val.userId,
+        name: val.name,
+        email: val.email,
+        total: val.orders.length,
+      };
+    });
+    return res.status(200).json({
+      success: true,
+      totalUsers: result.length,
+      data: filterData,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
