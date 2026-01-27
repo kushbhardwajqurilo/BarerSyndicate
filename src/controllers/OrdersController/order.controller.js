@@ -155,6 +155,7 @@ exports.userOrderList = async (req, res, next) => {
       productName: val?.product?.name,
       variants: val?.product?.variants || [],
       status: val?.status,
+      date: val?.createdAt,
     }));
 
     return res.status(200).json({
