@@ -337,7 +337,6 @@ exports.SingleUserOrderDetails = async (req, res, next) => {
 
     const orders = await PlaceOrder.find({
       userId: id, // 🔥 mongoose string ko khud ObjectId bana leta hai
-      status: { $ne: "cancel" },
     }).populate("userId");
 
     if (!orders.length) {
