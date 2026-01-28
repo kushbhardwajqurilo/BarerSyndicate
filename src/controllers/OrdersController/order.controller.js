@@ -274,9 +274,7 @@ exports.orderPdf = async (req, res, next) => {};
 exports.UserOrderDetails = async (req, res, next) => {
   try {
     // maan lo ye tumhara DB response hai
-    const orders = await PlaceOrder.find({
-      status: { $ne: "cancel" },
-    }).populate("userId");
+    const orders = await PlaceOrder.find({}).populate("userId");
 
     const usersMap = {};
 
