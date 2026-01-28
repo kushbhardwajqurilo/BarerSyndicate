@@ -143,8 +143,6 @@ exports.userOrderList = async (req, res, next) => {
     let total = 0;
 
     orders.forEach((order) => {
-      if (order.status === "cancel") return;
-
       const variants = order?.product?.variants || [];
       variants.forEach((v) => {
         total += Number(v.price || 0);
