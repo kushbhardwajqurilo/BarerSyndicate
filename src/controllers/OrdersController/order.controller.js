@@ -206,7 +206,8 @@ exports.OrderListOfAdmin = async (req, res, next) => {
 exports.orderApprovedOrReject = async (req, res, next) => {
   try {
     const { admin_id } = req;
-    const { id, type } = req.query;
+    const { id, type } = req.body;
+    console.log("issss", id);
     // ---------- ADMIN VALIDATION ----------
     if (!admin_id) {
       return res.status(400).json({
@@ -221,20 +222,20 @@ exports.orderApprovedOrReject = async (req, res, next) => {
         message: "Invalid Admin Id",
       });
     }
-
     // ---------- ORDER ID VALIDATION ----------
-    if (!id) {
+    if (!id || (Array.isArray(id) && id.length === 0)) {
       return res.status(400).json({
         status: false,
-        message: "Order id missing",
+        message: "Product id missing",
       });
     }
-
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({
-        status: false,
-        message: "Invalid Order Id",
-      });
+    for (let ids of id) {
+      if (!mongoose.Types.ObjectId.isValid(ids)) {
+        return res.status(400).json({
+          status: false,
+          message: "Invalid Order Id",
+        });
+      }
     }
 
     // ---------- TYPE VALIDATION ----------
@@ -246,8 +247,8 @@ exports.orderApprovedOrReject = async (req, res, next) => {
     }
 
     // ---------- UPDATE ORDER ----------
-    const order = await PlaceOrder.findOneAndUpdate(
-      { _id: id },
+    const order = await PlaceOrder.updateMany(
+      { _id: { $in: id } },
       { $set: { status: type } },
       { new: true },
     );
