@@ -60,6 +60,7 @@ exports.orderPlaceController = async (req, res, next) => {
       });
     }
 
+    // console.log("enquery", userEnquarys);
     /* ================= FETCH EXISTING ORDERS ================= */
 
     const existingOrders = await PlaceOrder.find(
@@ -82,7 +83,7 @@ exports.orderPlaceController = async (req, res, next) => {
           productId: val.productId._id,
           name: val.productId.name,
           image: val.productId.images?.[0] || null,
-          variants: val.productId.variants || [],
+          variants: val.variants || [],
         },
       }));
 
