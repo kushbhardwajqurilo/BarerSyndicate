@@ -273,3 +273,42 @@ exports.getAllEnquaryToAdmin = async (req, res) => {
 };
 
 // <------- price incrase or decrease ------------>
+
+// remove variants in enquiry
+exports.removeVariantsFromEnquiry = async (req, res, next) => {
+  const { user_id } = req;
+  console.log(req);
+  const { e_id, pos } = req.query; //e_id means enquiry single id
+  console.log({ user_id, e_id, pos });
+  if (!e_id) {
+    return res.status(400).json({
+      status: false,
+      message: "enquiry id missing",
+    });
+  }
+  if (!mongoose.Types.ObjectId.isValid(e_id)) {
+    return res.status(400).json({
+      status: false,
+      message: "Invalid enquiry id",
+    });
+  }
+  if (!pos) {
+    return res.status(400).json({
+      status: false,
+      messaage: "Variant missing",
+    });
+  }
+  const enquiry = await enquaryModel.findOne({ _id: e_id, user_id: user_id });
+  if (!enquiry) {
+    return res
+      .status(400)
+      .json({ status: false, message: "Enquiry not found" });
+  }
+  enquiry.variants.splice(pos, 1);
+  await enquiry.save();
+
+  return res.status(200).json({
+    status: true,
+    message: "variant Removed",
+  });
+};

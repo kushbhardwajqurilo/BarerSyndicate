@@ -206,6 +206,7 @@ exports.OrderListOfAdmin = async (req, res, next) => {
 // <------ order confirm, canel  and delete ---------->
 exports.orderApprovedOrReject = async (req, res, next) => {
   try {
+    console.log("body", req.body);
     const { admin_id } = req;
     const { id, type } = req.body;
     console.log("issss", id);

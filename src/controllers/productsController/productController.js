@@ -919,3 +919,35 @@ exports.activeAndDeactivateProductController = async (req, res, next) => {
       : "product deactivate successfull",
   });
 };
+
+// get product variants list
+exports.getProductVariantList = async (req, res, next) => {
+  const { p_id } = req.params;
+  if (!p_id) {
+    return res.status(400).json({
+      status: false,
+      message: "product id missing",
+    });
+  }
+  if (!mongoose.Types.ObjectId.isValid(p_id)) {
+    return res.status(400).json({
+      status: false,
+      message: "Invalid Product-id",
+    });
+  }
+
+  const variants_list = await ProductModel.findOne({ _id: p_id }).select(
+    "variants",
+  );
+  if (!variants_list) {
+    return res.status(400).json({
+      status: false,
+      message: "variants not found",
+    });
+  }
+  return res.status(200).json({
+    status: true,
+    message: "success",
+    data: [...variants_list.variants],
+  });
+};

@@ -31,7 +31,7 @@ OrderPlaceRouter.get(
   roleAuthetication("admin"),
   OrderListOfAdmin,
 );
-OrderPlaceRouter.get(
+OrderPlaceRouter.post(
   "/confrim-order",
   adminAuthentication,
   roleAuthetication("admin"),

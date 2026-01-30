@@ -12,6 +12,7 @@ const {
   addNewVariants,
   addNewImageInProduct,
   getNewArrivalProduct,
+  getProductVariantList,
 } = require("../controllers/productsController/productController");
 const { adminAuthentication } = require("../middlewares/AdminAuthetication");
 const ImageUpload = require("../middlewares/ImageUploader");
@@ -65,5 +66,7 @@ ProductsRouter.post(
   ImageUpload.array("image", 7),
   addNewImageInProduct,
 );
+
+ProductsRouter.get("/get-variants/:p_id", getProductVariantList);
 ProductsRouter.get("/new-arrival", getNewArrivalProduct);
 module.exports = ProductsRouter;
