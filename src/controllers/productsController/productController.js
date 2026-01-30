@@ -579,56 +579,56 @@ exports.featuredProducts = async (req, res) => {
 };
 
 // active / deactive product
-exports.activeAndDeactivateProductController = async (req, res, next) => {
-  const { id } = req.params;
-  const { status } = req.body;
+// exports.activeAndDeactivateProductController = async (req, res, next) => {
+//   const { id } = req.params;
+//   const { status } = req.body;
 
-  if (!id) {
-    return res
-      .status(400)
-      .json({ status: false, message: "product id missing" });
-  }
-  if (!mongoose.Types.ObjectId.isValid(id)) {
-    return res.status(400).json({
-      status: false,
-      message: "Invalid Project ObjectId",
-    });
-  }
-  if (!["activate", "deactivate"].includes(status)) {
-    return res.status(400).json({
-      status: false,
-      message: "Status must be activate or deactivate",
-    });
-  }
+//   if (!id) {
+//     return res
+//       .status(400)
+//       .json({ status: false, message: "product id missing" });
+//   }
+//   if (!mongoose.Types.ObjectId.isValid(id)) {
+//     return res.status(400).json({
+//       status: false,
+//       message: "Invalid Project ObjectId",
+//     });
+//   }
+//   if (!["activate", "deactivate"].includes(status)) {
+//     return res.status(400).json({
+//       status: false,
+//       message: "Status must be activate or deactivate",
+//     });
+//   }
 
-  const product = await productModel.findOne({ _id: id });
-  if (!product) {
-    return res.status(400).json({
-      status: false,
-      message: "product not found",
-    });
-  }
-  if (status === "deactivate") {
-    product.isActivate = false;
-    await product.save();
-    return res.status(200).json({
-      success: true,
-      message: "product deactivated.",
-    });
-  }
-  if (status === "activate") {
-    product.isActivate = true;
-    await product.save();
-    return res.status(200).json({
-      success: true,
-      message: "product activated.",
-    });
-  }
-  return res.status(400).json({
-    status: false,
-    message: "Try Again later.",
-  });
-};
+//   const product = await productModel.findOne({ _id: id });
+//   if (!product) {
+//     return res.status(400).json({
+//       status: false,
+//       message: "product not found",
+//     });
+//   }
+//   if (status === "deactivate") {
+//     product.isActivate = false;
+//     await product.save();
+//     return res.status(200).json({
+//       success: true,
+//       message: "product deactivated.",
+//     });
+//   }
+//   if (status === "activate") {
+//     product.isActivate = true;
+//     await product.save();
+//     return res.status(200).json({
+//       success: true,
+//       message: "product activated.",
+//     });
+//   }
+//   return res.status(400).json({
+//     status: false,
+//     message: "Try Again later.",
+//   });
+// };
 
 // seacrh product
 
@@ -872,5 +872,50 @@ exports.getNewArrivalProduct = async (req, res, next) => {
     status: false,
     message: "New Arrival Product Fetch",
     data: products,
+  });
+};
+
+exports.activeAndDeactivateProductController = async (req, res, next) => {
+  const { id, status } = req.body;
+  if (!id || (Array.isArray(id) && id.length === 0)) {
+    return res.status(400).json({
+      status: false,
+      message: "Product id missing",
+    });
+  }
+  // Convert single id → array
+  const ids = Array.isArray(id) ? id : [id];
+
+  // Validate ObjectIds
+  for (const productId of ids) {
+    if (!mongoose.Types.ObjectId.isValid(productId)) {
+      return res.status(400).json({
+        status: false,
+        message: "Invalid Product ObjectId",
+      });
+    }
+  }
+  if (![true, false].includes(status)) {
+    return res.status(400).json({
+      status: false,
+      message: "Status must be activate or deactivate",
+    });
+  }
+  const product = await productModel.updateMany(
+    { _id: { $in: id } },
+    { $set: { isActivate: status } },
+  );
+
+  if (product.modifiedCount === 0) {
+    return res.status(400).json({
+      status: false,
+      message: "failed to active/deactive produt",
+    });
+  }
+  return res.status(200).json({
+    status: false,
+    message: status
+      ? "product activate successfull"
+      : "product deactivate successfull",
   });
 };

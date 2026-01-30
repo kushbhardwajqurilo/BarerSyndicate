@@ -18,6 +18,8 @@ const ImageUpload = require("../middlewares/ImageUploader");
 const { roleAuthetication } = require("../middlewares/roleBaseAuthe");
 
 const ProductsRouter = require("express").Router();
+ProductsRouter.put("/active-deactive", activeAndDeactivateProductController);
+
 ProductsRouter.post(
   "/",
   adminAuthentication,
@@ -48,10 +50,6 @@ ProductsRouter.delete(
 );
 ProductsRouter.get("/similar", similarProduct);
 ProductsRouter.get("/feature", featuredProducts);
-ProductsRouter.put(
-  "/active-deactive/:id",
-  activeAndDeactivateProductController,
-);
 
 ProductsRouter.get("/search-product", searchProducts);
 ProductsRouter.post(
