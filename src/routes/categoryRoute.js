@@ -5,6 +5,7 @@ const {
   getAllCategory,
   getSingleCategory,
   searchCategory,
+  updateCategoryImage,
 } = require("../controllers/categoryController.js/category");
 const { adminAuthentication } = require("../middlewares/AdminAuthetication");
 const ImageUpload = require("../middlewares/ImageUploader");
@@ -33,5 +34,11 @@ CategoryRouter.delete(
 );
 CategoryRouter.get("/", getAllCategory);
 CategoryRouter.get("/:id", getSingleCategory);
-
+CategoryRouter.post(
+  "/update-image/:id",
+  adminAuthentication,
+  roleAuthetication("admin"),
+  ImageUpload.single("image"),
+  updateCategoryImage
+);
 module.exports = CategoryRouter;

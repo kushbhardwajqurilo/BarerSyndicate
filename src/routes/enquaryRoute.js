@@ -5,7 +5,8 @@ const {
   getAllEnquaryToAdmin,
   deleteEnquary,
   removeVariantsFromEnquiry,
-} = require("../controllers/AddToEnquary/addEnquarycontroller");
+  addVariantsInExistEnquiry,
+  } = require("../controllers/AddToEnquary/addEnquarycontroller");
 const { adminAuthentication } = require("../middlewares/AdminAuthetication");
 const { roleAuthetication } = require("../middlewares/roleBaseAuthe");
 const { userAuthMiddleware } = require("../middlewares/userAuthMiddleware");
@@ -21,5 +22,11 @@ enquiryRouter.put(
   userAuthMiddleware,
   roleAuthetication("user"),
   removeVariantsFromEnquiry,
+);
+enquiryRouter.put(
+  "/add-variants",
+  userAuthMiddleware,
+  roleAuthetication("user"),
+  addVariantsInExistEnquiry,
 );
 module.exports = enquiryRouter;

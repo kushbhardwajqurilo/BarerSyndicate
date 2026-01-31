@@ -191,3 +191,40 @@ exports.searchCategory = async (req, res, next) => {
     });
   }
 };
+
+
+
+// category image updte 
+exports.updateCategoryImage = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const file = req.file.path;
+    if (!file) {
+      return res.status(400).json({ message: "Please upload a file" });
+    }
+    const upload = await cloudinary.uploader.upload(file, {
+      folder: "BS-category-image",
+    });
+    if (!upload) {
+      return res.status(400).json({ message: "Failed to upload image" });
+    }
+    fs.unlinkSync(file);
+    if (!id) {
+      return res.status(400).json({
+        message: "Invalid id",
+      });
+    }
+    const category = await categoryModel.findByIdAndUpdate(id, { catImg: upload.secure_url }, { new: true });
+    if (!category) {
+      return res.status(400).json({
+        message: "Category not found",
+      });
+    }
+    return res.status(200).json({
+      message: "Category image updated successfully",
+      data: category,
+    });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: error.message });
+  }
+};

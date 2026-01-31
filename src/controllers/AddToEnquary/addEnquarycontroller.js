@@ -312,3 +312,47 @@ exports.removeVariantsFromEnquiry = async (req, res, next) => {
     message: "variant Removed",
   });
 };
+
+//  add variants in enquray
+exports.addVariantsInExistEnquiry = async (req, res, next) => {
+  const { user_id } = req;
+  const { e_id, variants } = req.body;
+  console.log({user_id, e_id, variants});
+  if (!e_id) {
+    return res.status(400).json({
+      status: false,
+      message: "enquiry id missing",
+    });
+  }
+  if (!mongoose.Types.ObjectId.isValid(e_id)) {
+    return res.status(400).json({
+      status: false,
+      message: "Invalid enquiry id",
+    });
+  }
+  if (!variants) {
+    return res.status(400).json({
+      status: false,
+      message: "variants array missing",
+    });
+  }
+  if (!Array.isArray(variants)) {
+    return res.status(400).json({
+      status: false,
+      message: "variants must be an array",
+    });
+  }
+  const enquiry = await enquaryModel.findOne({ _id: e_id, user_id: user_id });
+  if (!enquiry) {
+    return res.status(400).json({
+      status: false,
+      message: "Enquiry not found",
+    });
+  }
+  enquiry.variants.push(...variants);
+  await enquiry.save();
+  return res.status(200).json({
+    status: true,
+    message: "variants added",
+  });
+};
