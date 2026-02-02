@@ -5,6 +5,7 @@ const {
   orderApprovedOrReject,
   UserOrderDetails,
   SingleUserOrderDetails,
+  multipleOrderDelte,
 } = require("../controllers/OrdersController/order.controller");
 const { adminAuthentication } = require("../middlewares/AdminAuthetication");
 const { roleAuthetication } = require("../middlewares/roleBaseAuthe");
@@ -50,4 +51,6 @@ OrderPlaceRouter.get(
   roleAuthetication("admin"),
   SingleUserOrderDetails,
 );
+
+OrderPlaceRouter.delete("/delete-order", multipleOrderDelte);
 module.exports = OrderPlaceRouter;
