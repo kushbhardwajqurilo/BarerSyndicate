@@ -391,21 +391,22 @@ exports.SingleUserOrderDetails = async (req, res, next) => {
 };
 
 exports.multipleOrderDelte = async (req, res, next) => {
-  const { order_id } = req.body;
-  if (!Array.isArray(order_id)) {
+  const { user_id } = req.body;
+  if (!Array.isArray(user_id)) {
     return res.status(400).json({
       status: false,
       message: "Order id required",
     });
   }
   const o_id =
-    order_id.length === 1
-      ? [order_id[0]]
-      : order_id.map((id) => {
+    user_id.length === 1
+      ? [user_id[0]]
+      : user_id.map((id) => {
           return new mongoose.Types.ObjectId(id);
         });
 
-  const result = await PlaceOrder.deleteMany({ _id: { $in: o_id } });
+  const result = await PlaceOrder.deleteMany({ userId: { $in: o_id } });
+  console.log("es", result);
   if (result.deletedCount === 0) {
     return res.status(400).json({
       status: false,
