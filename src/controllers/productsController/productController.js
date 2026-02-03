@@ -113,7 +113,6 @@ exports.getAllProducts = async (req, res, next) => {
     if (subcategory) filter.subcategoryId = subcategory;
     if (brand) filter.brand = brand;
     if (category) filter.categoryId = category;
-    console.log(filter);
     const products = await ProductModel.find(filter)
       .populate({
         path: "subcategoryId",
@@ -344,7 +343,7 @@ exports.updateProduct = async (req, res) => {
         message: "Product not found",
       });
     }
-
+    console.log("product", product);
     /* ===================== HELPERS ===================== */
 
     const cleanString = (val) => {
@@ -391,7 +390,7 @@ exports.updateProduct = async (req, res) => {
     if (brandId) product.brand = brandId;
 
     if (description) product.description = cleanString(description);
-    if (key_feature) product.key_feature == cleanString(key_feature);
+    if (key_feature) product.key_feature = cleanString(key_feature);
     if (points) {
       product.points = safeJsonParse(points, []);
       product.markModified("points");
@@ -415,7 +414,7 @@ exports.updateProduct = async (req, res) => {
       product.variants = incomingVariants;
       product.markModified("variants");
     }
-
+    console.log("update", product);
     /* ================= IMAGES (OPTIONAL) ================= */
 
     if (req.files && req.files.length > 0) {
@@ -436,7 +435,6 @@ exports.updateProduct = async (req, res) => {
           message: "positions must be an array",
         });
       }
-
       const updatedIndexes = [];
 
       for (let i = 0; i < req.files.length; i++) {
