@@ -13,6 +13,7 @@ const {
   addNewImageInProduct,
   getNewArrivalProduct,
   getProductVariantList,
+  getAllProductsForUser,
 } = require("../controllers/productsController/productController");
 const { adminAuthentication } = require("../middlewares/AdminAuthetication");
 const ImageUpload = require("../middlewares/ImageUploader");
@@ -35,6 +36,7 @@ ProductsRouter.delete(
   deleteProductPrice,
 );
 ProductsRouter.get("/", getAllProducts);
+ProductsRouter.get("/user-products", getAllProductsForUser);
 ProductsRouter.get("/single/:id", getSingleProduct);
 ProductsRouter.put(
   "/:id",

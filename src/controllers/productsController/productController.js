@@ -107,6 +107,46 @@ exports.getAllProducts = async (req, res, next) => {
     const page = parseInt(req.query.page) || 1;
     const limit = 20;
     const skip = (page - 1) * limit;
+    let filter = {};
+    if (subcategory) filter.subcategoryId = subcategory;
+    if (brand) filter.brand = brand;
+    if (category) filter.categoryId = category;
+    const products = await ProductModel.find(filter)
+      .populate({
+        path: "subcategoryId",
+        select: "subCatName",
+      })
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
+
+    const totalProducts = await ProductModel.countDocuments(filter);
+
+    if (products.length === 0) {
+      return res
+        .status(404)
+        .json({ message: "No products found", success: false });
+    }
+
+    res.status(200).json({
+      success: true,
+      currentPage: page,
+      totalPages: Math.ceil(totalProducts / limit),
+      totalResults: totalProducts,
+      products,
+    });
+  } catch (err) {
+    return res.status(500).json({ message: err.message, success: false, err });
+  }
+};
+
+// get product for user
+exports.getAllProductsForUser = async (req, res, next) => {
+  try {
+    const { category, subcategory, brand } = req.query;
+    const page = parseInt(req.query.page) || 1;
+    const limit = 20;
+    const skip = (page - 1) * limit;
     let filter = {
       isActivate: true,
     };
