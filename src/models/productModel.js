@@ -31,6 +31,7 @@ const productSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
+    key_feature: { type: String, default: "" },
     images: {
       type: [String],
       default: [],
@@ -44,7 +45,7 @@ const productSchema = new mongoose.Schema(
       default: true,
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 module.exports = mongoose.model("Product", productSchema);

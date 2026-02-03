@@ -6,7 +6,6 @@ const productModel = require("../../models/productModel");
 exports.createProduct = async (req, res, next) => {
   try {
     const files = req.files;
-    console.log(req.body);
     let {
       name,
       description,
@@ -16,6 +15,7 @@ exports.createProduct = async (req, res, next) => {
       variants,
       isFeature,
       brand,
+      key_feature,
     } = req.body;
     // Validate required fields
     if (!name || !description || !categoryId || !brand) {
@@ -79,6 +79,7 @@ exports.createProduct = async (req, res, next) => {
       variants,
       isFeature,
       brand,
+      key_feature,
     };
     // Save product in DB
     const product = await ProductModel.create(payload);
@@ -106,7 +107,9 @@ exports.getAllProducts = async (req, res, next) => {
     const page = parseInt(req.query.page) || 1;
     const limit = 20;
     const skip = (page - 1) * limit;
-    let filter = {};
+    let filter = {
+      isActivate: true,
+    };
     if (subcategory) filter.subcategoryId = subcategory;
     if (brand) filter.brand = brand;
     if (category) filter.categoryId = category;
@@ -374,8 +377,8 @@ exports.updateProduct = async (req, res) => {
       brand,
       points,
       variants,
+      key_feature,
     } = req.body;
-
     if (name) product.name = cleanString(name);
 
     const catId = cleanObjectId(categoryId);
@@ -388,7 +391,7 @@ exports.updateProduct = async (req, res) => {
     if (brandId) product.brand = brandId;
 
     if (description) product.description = cleanString(description);
-
+    if (key_feature) product.key_feature == cleanString(key_feature);
     if (points) {
       product.points = safeJsonParse(points, []);
       product.markModified("points");
