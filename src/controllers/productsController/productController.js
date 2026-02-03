@@ -377,6 +377,7 @@ exports.updateProduct = async (req, res) => {
       points,
       variants,
       key_feature,
+      isFeature,
     } = req.body;
     if (name) product.name = cleanString(name);
 
@@ -391,6 +392,7 @@ exports.updateProduct = async (req, res) => {
 
     if (description) product.description = cleanString(description);
     if (key_feature) product.key_feature = cleanString(key_feature);
+    if (isFeature) product.isFeature = cleanString(isFeature);
     if (points) {
       product.points = safeJsonParse(points, []);
       product.markModified("points");
