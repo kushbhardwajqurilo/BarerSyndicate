@@ -16,6 +16,7 @@ exports.createProduct = async (req, res, next) => {
       isFeature,
       brand,
       key_feature,
+      keywords,
     } = req.body;
     // Validate required fields
     if (!name || !description || !categoryId || !brand) {
@@ -58,6 +59,15 @@ exports.createProduct = async (req, res, next) => {
       });
     }
 
+    // Parse keyword (array of strings,otional)
+    keywords =
+      typeof keywords === "string" ? safeParse(keywords, []) : keywords;
+    if (!Array.isArray(keywords)) {
+      return res.status(400).json({
+        success: false,
+        message: "Keywords must be an array of strings",
+      });
+    }
     // Upload images to Cloudinary (uncomment when ready)
     const images = [];
     for (const file of files) {
@@ -80,6 +90,7 @@ exports.createProduct = async (req, res, next) => {
       isFeature,
       brand,
       key_feature,
+      keywords,
     };
     // Save product in DB
     const product = await ProductModel.create(payload);
@@ -418,6 +429,7 @@ exports.updateProduct = async (req, res) => {
       variants,
       key_feature,
       isFeature,
+      keywords,
     } = req.body;
     if (name) product.name = cleanString(name);
 
@@ -451,12 +463,24 @@ exports.updateProduct = async (req, res) => {
           message: "variants must be an array",
         });
       }
-
-      // 🔥 AS IT IS SAVE, OLD REMOVE, NEW ADD
+      // AS IT IS SAVE, OLD REMOVE, NEW ADD
       product.variants = incomingVariants;
       product.markModified("variants");
     }
-    console.log("update", product);
+    // ========= keyword update and add new ===========
+    if (keywords !== undefined) {
+      const incomingKeyword = safeJsonParse(keywords, []);
+
+      if (!Array.isArray(incomingKeyword)) {
+        return res.status(400).json({
+          status: false,
+          message: "keywords must be an array",
+        });
+      }
+      product.keywords = incomingKeyword;
+      product.markModified("keywords");
+    }
+
     /* ================= IMAGES (OPTIONAL) ================= */
 
     if (req.files && req.files.length > 0) {
@@ -677,29 +701,33 @@ exports.featuredProducts = async (req, res) => {
 
 exports.searchProducts = async (req, res) => {
   try {
-    const {
-      search, // keyword for name + description
-      page = 1,
-    } = req.query;
+    const { search = "", page = 1, limit = 20 } = req.query;
 
-    const query = {};
+    const pageNum = Number(page);
+    const limitNum = Number(limit);
+    const skip = (pageNum - 1) * limitNum;
 
-    /* ---------------- NAME + DESCRIPTION SEARCH ---------------- */
-    if (search) {
-      query.$or = [
-        { name: { $regex: search, $options: "i" } },
-        { description: { $regex: search, $options: "i" } },
-      ];
+    const query = {
+      isActivate: true,
+    };
+
+    // 🔥 USE TEXT SEARCH (INDEXED)
+    if (search.trim()) {
+      query.$text = { $search: search };
     }
 
-    /* ---------------- PAGINATION ---------------- */
-    const skip = (Number(page) - 1) * 20;
-
     const [products, total] = await Promise.all([
-      ProductModel.find(query)
+      ProductModel.find(query, {
+        score: search ? { $meta: "textScore" } : 1,
+      })
+        .sort(
+          search
+            ? { score: { $meta: "textScore" } } // relevance first
+            : { createdAt: -1 },
+        )
         .skip(skip)
-        .limit(Number(20))
-        .sort({ createdAt: -1 }),
+        .limit(limitNum)
+        .lean(),
 
       ProductModel.countDocuments(query),
     ]);
@@ -707,8 +735,8 @@ exports.searchProducts = async (req, res) => {
     return res.status(200).json({
       success: true,
       total,
-      page: Number(page),
-      limit: 20,
+      page: pageNum,
+      limit: limitNum,
       results: products.length,
       data: products,
     });
@@ -720,7 +748,6 @@ exports.searchProducts = async (req, res) => {
     });
   }
 };
-
 //  delete product price
 exports.deleteProductPrice = async (req, res, next) => {
   try {

@@ -17,5 +17,5 @@ const SubCategorySchema = new mongoose.Schema({
     default: false,
   },
 });
-
+SubCategorySchema.index({ subCatName: 1 });
 module.exports = mongoose.model("subcategory", SubCategorySchema);
