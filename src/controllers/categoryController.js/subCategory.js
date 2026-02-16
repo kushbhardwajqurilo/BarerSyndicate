@@ -80,7 +80,9 @@ exports.updateSubCat = async function (req, res, next) {
     const updateData = {
       subCatName: req.body.subCatName,
       subCatTitle: req.body.subCatTitle,
+      catId: req.body.catId,
     };
+    console.log("ss", updateData);
     const resData = await subCategoryModel.updateOne(query, updateData);
     if (resData) {
       res.json({
