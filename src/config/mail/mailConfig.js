@@ -10,7 +10,7 @@ const Transprter = nodemailer.createTransport({
   },
 });
 
-async function sentMail(to, subject, text, html) {
+async function SentMail(to, subject, text, html) {
   const info = await Transprter.sendMail({
     from: "",
     to,
@@ -21,4 +21,4 @@ async function sentMail(to, subject, text, html) {
   return info.accepted.length !== 0 ? true : false;
 }
 
-module.exports = sentMail;
+module.exports = SentMail;
