@@ -9,6 +9,7 @@ const {
   changePassword,
   getUserList,
   deleteAndBlockUser,
+  sendMessageByUser,
 } = require("../controllers/userController/userController");
 const { adminAuthentication } = require("../middlewares/AdminAuthetication");
 const {
@@ -28,5 +29,6 @@ userRoutes.post("/change-password", forgetPasswordAuth, changePassword);
 // userRoutes.post("/verify-otp", testOtpVerify);
 userRoutes.get("/all-users", adminAuthentication, getUserList);
 userRoutes.post("/delete-block", deleteAndBlockUser);
+userRoutes.post("/send", sendMessageByUser);
 
 module.exports = userRoutes;

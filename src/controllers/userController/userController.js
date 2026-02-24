@@ -11,6 +11,7 @@ const { isValidGST } = require("../../utitlies/gstValidation");
 const { genrateOTP } = require("../../utitlies/genrateOtp");
 const { default: axios } = require("axios");
 const cloudinary = require("../../config/cloudinary/cloudinary");
+const sentMail = require("../../config/mail/mailConfig");
 const otpStore = {};
 const otpStoreTest = {};
 exports.userSignup = async (req, res, next) => {
@@ -464,6 +465,44 @@ exports.deleteAndBlockUser = async (req, res) => {
     return res.status(500).json({
       status: false,
       message: "internal server error",
+    });
+  }
+};
+
+// user send message in mail
+exports.sendMessageByUser = async (req, res, next) => {
+  const required_fields = ["name", "email", "message", "phone"];
+  // console.log("body", req.bdoy);
+  for (let fields of required_fields) {
+    if (!req.body[fields] || req.body[fields].toString().trim().length === 0) {
+      return res
+        .status(400)
+        .json({ status: false, message: `${fields} missing` });
+    }
+  }
+  const { name, email, message, phone } = req.body;
+  const sent = await sentMail(
+    email,
+    `${name} sent you a mail`,
+    "",
+    `<html>
+      <body>
+        <span>Name: ${name}</span>
+        <span>Phone: ${phone}</span>
+        <p>${message}</p>
+      </body>
+    </html>`,
+  );
+  if (sent) {
+    // console.log(sent);
+    return res.status(200).json({
+      status: true,
+      message: "Mail sent",
+    });
+  } else {
+    return res.status(400).json({
+      status: false,
+      message: "failed to send",
     });
   }
 };

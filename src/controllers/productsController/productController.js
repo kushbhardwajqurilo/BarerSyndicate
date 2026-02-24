@@ -376,6 +376,7 @@ exports.getSingleProduct = async (req, res, next) => {
 
 exports.updateProduct = async (req, res) => {
   try {
+    console.log(req.body);
     const { id } = req.params;
     let { positions } = req.body;
 
@@ -394,7 +395,7 @@ exports.updateProduct = async (req, res) => {
         message: "Product not found",
       });
     }
-    console.log("product", product);
+
     /* ===================== HELPERS ===================== */
 
     const cleanString = (val) => {
