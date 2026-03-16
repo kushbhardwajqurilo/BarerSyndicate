@@ -1,5 +1,5 @@
 const firebaseAdmin = require("firebase-admin");
-const serviceAccount = require("../../../BarberSyndicateServiceAccountKey.json");
+const serviceAccount = require("../../utitlies/BarberSyndicateServiceAccountKey.json");
 firebaseAdmin.initializeApp({
   credential: firebaseAdmin.credential.cert(serviceAccount),
 });
