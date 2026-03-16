@@ -3,6 +3,9 @@ const ProductModel = require("../../models/productModel");
 const cloudinary = require("../../config/cloudinary/cloudinary");
 const fs = require("fs");
 const productModel = require("../../models/productModel");
+const fcmTokenModel = require("../../models/firebaseToken.model");
+const firebasAddmin = require("../../config/firebase/firebase");
+const { sendFirebaseNotification } = require("../firebase/firebase.controller");
 exports.createProduct = async (req, res, next) => {
   try {
     const files = req.files;
@@ -78,6 +81,18 @@ exports.createProduct = async (req, res, next) => {
       fs.unlinkSync(file.path);
     }
 
+    variants = variants.map((variant) => {
+      const price = Number(variant.price) || 0;
+      const percentage = Number(variant.percentage) || 0;
+
+      const total = price - (price * percentage) / 100;
+
+      return {
+        ...variant,
+        percentage,
+        total,
+      };
+    });
     // Build payload
     const payload = {
       name,
@@ -100,6 +115,18 @@ exports.createProduct = async (req, res, next) => {
         message: "failed to  add product",
       });
     }
+
+    // send push notification
+    // const fcmTokens = await fcmTokenModel.find({
+    //   fcm_token: { $exists: true, $ne: [] },
+    // });
+    // const tokens = fcmTokens.flatMap((tkn) => tkn.fcm_token);
+    // if (tokens.length > 0) {
+    //   await firebasAddmin.messaging()
+    // }
+    await sendFirebaseNotification(
+      `${process.env.PRODUCT_URL}/product/${product?._id}`,
+    );
     return res.status(201).json({
       message: "Product add successfully",
       success: true,
@@ -374,6 +401,189 @@ exports.getSingleProduct = async (req, res, next) => {
 //   }
 // };
 
+// exports.updateProduct = async (req, res) => {
+//   try {
+//     console.log(req.body);
+//     const { id } = req.params;
+//     let { positions } = req.body;
+
+//     /* ================= VALIDATE PRODUCT ID ================= */
+//     if (!mongoose.Types.ObjectId.isValid(id)) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "Invalid product ID",
+//       });
+//     }
+
+//     const product = await ProductModel.findById(id);
+//     if (!product) {
+//       return res.status(404).json({
+//         success: false,
+//         message: "Product not found",
+//       });
+//     }
+
+//     /* ===================== HELPERS ===================== */
+
+//     const cleanString = (val) => {
+//       if (typeof val !== "string") return val;
+//       return val.replace(/"/g, "").replace(/,+$/, "").trim();
+//     };
+
+//     const cleanObjectId = (val) => {
+//       if (!val) return undefined;
+//       val = cleanString(val);
+//       return mongoose.Types.ObjectId.isValid(val) ? val : undefined;
+//     };
+
+//     const safeJsonParse = (val, fallback) => {
+//       try {
+//         if (typeof val !== "string") return val;
+//         return JSON.parse(val.replace(/,+$/, ""));
+//       } catch {
+//         return fallback;
+//       }
+//     };
+
+//     /* ================= UPDATE NORMAL FIELDS ================= */
+
+//     const {
+//       name,
+//       categoryId,
+//       subcategoryId,
+//       description,
+//       brand,
+//       points,
+//       variants,
+//       key_feature,
+//       isFeature,
+//       keywords,
+//     } = req.body;
+//     if (name) product.name = cleanString(name);
+
+//     const catId = cleanObjectId(categoryId);
+//     if (catId) product.categoryId = catId;
+
+//     const subCatId = cleanObjectId(subcategoryId);
+//     if (subCatId) product.subcategoryId = subCatId;
+
+//     const brandId = cleanObjectId(brand);
+//     if (brandId) product.brand = brandId;
+
+//     if (description) product.description = cleanString(description);
+//     if (key_feature) product.key_feature = cleanString(key_feature);
+//     if (isFeature) product.isFeature = cleanString(isFeature);
+//     if (points) {
+//       product.points = safeJsonParse(points, []);
+//       product.markModified("points");
+//     }
+
+//     /* ================= VARIANTS (FULL REPLACE) ================= */
+
+//     /* ================= VARIANTS (FULL REPLACE - AS IT IS) ================= */
+
+//     if (variants !== undefined) {
+//       const incomingVariants = safeJsonParse(variants, []);
+
+//       if (!Array.isArray(incomingVariants)) {
+//         return res.status(400).json({
+//           success: false,
+//           message: "variants must be an array",
+//         });
+//       }
+//       // AS IT IS SAVE, OLD REMOVE, NEW ADD
+//       product.variants = incomingVariants;
+//       product.markModified("variants");
+//     }
+//     // ========= keyword update and add new ===========
+//     if (keywords !== undefined) {
+//       const incomingKeyword = safeJsonParse(keywords, []);
+
+//       if (!Array.isArray(incomingKeyword)) {
+//         return res.status(400).json({
+//           status: false,
+//           message: "keywords must be an array",
+//         });
+//       }
+//       product.keywords = incomingKeyword;
+//       product.markModified("keywords");
+//     }
+
+//     /* ================= IMAGES (OPTIONAL) ================= */
+
+//     if (req.files && req.files.length > 0) {
+//       if (!positions) {
+//         return res.status(400).json({
+//           success: false,
+//           message: "positions is required when updating images",
+//         });
+//       }
+
+//       if (typeof positions === "string") {
+//         positions = JSON.parse(positions);
+//       }
+
+//       if (!Array.isArray(positions)) {
+//         return res.status(400).json({
+//           success: false,
+//           message: "positions must be an array",
+//         });
+//       }
+//       const updatedIndexes = [];
+
+//       for (let i = 0; i < req.files.length; i++) {
+//         const file = req.files[i];
+//         const imgIndex = Number(positions[i]);
+
+//         if (
+//           Number.isNaN(imgIndex) ||
+//           imgIndex < 0 ||
+//           imgIndex >= product.images.length
+//         ) {
+//           fs.unlinkSync(file.path);
+//           continue;
+//         }
+
+//         const uploadResult = await cloudinary.uploader.upload(file.path, {
+//           folder: "BS Products",
+//         });
+
+//         fs.unlinkSync(file.path);
+
+//         product.images.set(imgIndex, uploadResult.secure_url);
+//         updatedIndexes.push(imgIndex);
+//       }
+
+//       product.markModified("images");
+
+//       await product.save();
+
+//       return res.status(200).json({
+//         success: true,
+//         message: "Product updated successfully (with images)",
+//         updatedIndexes,
+//         data: product,
+//       });
+//     }
+
+//     /* ================= SAVE (NO IMAGES) ================= */
+
+//     await product.save();
+
+//     return res.status(200).json({
+//       success: true,
+//       message: "Product updated successfully",
+//       data: product,
+//     });
+//   } catch (error) {
+//     console.error("Update Product Error:", error);
+//     return res.status(500).json({
+//       success: false,
+//       message: error.message,
+//     });
+//   }
+// };
+
 exports.updateProduct = async (req, res) => {
   try {
     console.log(req.body);
@@ -381,6 +591,7 @@ exports.updateProduct = async (req, res) => {
     let { positions } = req.body;
 
     /* ================= VALIDATE PRODUCT ID ================= */
+
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({
         success: false,
@@ -389,6 +600,7 @@ exports.updateProduct = async (req, res) => {
     }
 
     const product = await ProductModel.findById(id);
+
     if (!product) {
       return res.status(404).json({
         success: false,
@@ -418,6 +630,22 @@ exports.updateProduct = async (req, res) => {
       }
     };
 
+    const calculateVariants = (variants) => {
+      return variants.map((variant) => {
+        const price = Number(variant.price) || 0;
+        const percentage = Number(variant.percentage) || 0;
+
+        const total = price - (price * percentage) / 100;
+
+        return {
+          ...variant,
+          price,
+          percentage,
+          total,
+        };
+      });
+    };
+
     /* ================= UPDATE NORMAL FIELDS ================= */
 
     const {
@@ -432,6 +660,7 @@ exports.updateProduct = async (req, res) => {
       isFeature,
       keywords,
     } = req.body;
+
     if (name) product.name = cleanString(name);
 
     const catId = cleanObjectId(categoryId);
@@ -444,16 +673,17 @@ exports.updateProduct = async (req, res) => {
     if (brandId) product.brand = brandId;
 
     if (description) product.description = cleanString(description);
+
     if (key_feature) product.key_feature = cleanString(key_feature);
-    if (isFeature) product.isFeature = cleanString(isFeature);
+
+    if (isFeature !== undefined) product.isFeature = isFeature;
+
     if (points) {
       product.points = safeJsonParse(points, []);
       product.markModified("points");
     }
 
-    /* ================= VARIANTS (FULL REPLACE) ================= */
-
-    /* ================= VARIANTS (FULL REPLACE - AS IT IS) ================= */
+    /* ================= VARIANTS UPDATE ================= */
 
     if (variants !== undefined) {
       const incomingVariants = safeJsonParse(variants, []);
@@ -464,25 +694,32 @@ exports.updateProduct = async (req, res) => {
           message: "variants must be an array",
         });
       }
-      // AS IT IS SAVE, OLD REMOVE, NEW ADD
-      product.variants = incomingVariants;
+
+      const updatedVariants = calculateVariants(incomingVariants);
+
+      product.variants = updatedVariants;
+
       product.markModified("variants");
     }
-    // ========= keyword update and add new ===========
+
+    /* ================= KEYWORDS UPDATE ================= */
+
     if (keywords !== undefined) {
       const incomingKeyword = safeJsonParse(keywords, []);
 
       if (!Array.isArray(incomingKeyword)) {
         return res.status(400).json({
-          status: false,
+          success: false,
           message: "keywords must be an array",
         });
       }
+
       product.keywords = incomingKeyword;
+
       product.markModified("keywords");
     }
 
-    /* ================= IMAGES (OPTIONAL) ================= */
+    /* ================= IMAGES UPDATE ================= */
 
     if (req.files && req.files.length > 0) {
       if (!positions) {
@@ -502,6 +739,7 @@ exports.updateProduct = async (req, res) => {
           message: "positions must be an array",
         });
       }
+
       const updatedIndexes = [];
 
       for (let i = 0; i < req.files.length; i++) {
@@ -524,6 +762,7 @@ exports.updateProduct = async (req, res) => {
         fs.unlinkSync(file.path);
 
         product.images.set(imgIndex, uploadResult.secure_url);
+
         updatedIndexes.push(imgIndex);
       }
 
@@ -539,7 +778,7 @@ exports.updateProduct = async (req, res) => {
       });
     }
 
-    /* ================= SAVE (NO IMAGES) ================= */
+    /* ================= SAVE ================= */
 
     await product.save();
 
@@ -550,13 +789,13 @@ exports.updateProduct = async (req, res) => {
     });
   } catch (error) {
     console.error("Update Product Error:", error);
+
     return res.status(500).json({
       success: false,
       message: error.message,
     });
   }
 };
-
 // delete products
 exports.deleteProduct = async (req, res, next) => {
   try {
@@ -838,6 +1077,8 @@ exports.addNewVariants = async (req, res, next) => {
       return {
         price: String(v.price).trim(),
         quantity: String(v.quantity).trim(),
+        percentage: Number(v.percentage),
+        total: String(v.total).trim(),
       };
     });
 

@@ -4,6 +4,8 @@ const mongoose = require("mongoose");
 const variantSchema = new mongoose.Schema({
   price: { type: String, required: true },
   quantity: { type: String, required: true },
+  percentage: { type: Number },
+  total: { type: String },
 });
 
 const productSchema = new mongoose.Schema(

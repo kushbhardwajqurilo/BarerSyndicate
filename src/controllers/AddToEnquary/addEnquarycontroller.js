@@ -157,7 +157,7 @@ exports.getAllEnquary = async (req, res) => {
     }
     const totalPrice = Enquary.reduce((sum, product) => {
       const variantSum = product.variants.reduce(
-        (vSum, v) => vSum + v.price,
+        (vSum, v) => vSum + v.price ?? v.total,
         0,
       );
       return sum + variantSum;
@@ -317,7 +317,7 @@ exports.removeVariantsFromEnquiry = async (req, res, next) => {
 exports.addVariantsInExistEnquiry = async (req, res, next) => {
   const { user_id } = req;
   const { e_id, variants } = req.body;
-  console.log({user_id, e_id, variants});
+  console.log({ user_id, e_id, variants });
   if (!e_id) {
     return res.status(400).json({
       status: false,

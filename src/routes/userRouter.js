@@ -1,4 +1,8 @@
 const {
+  saveFcmToken,
+  sendFirebaseNotification,
+} = require("../controllers/firebase/firebase.controller");
+const {
   userSignup,
   getSingleUser,
   userLogin,
@@ -30,5 +34,6 @@ userRoutes.post("/change-password", forgetPasswordAuth, changePassword);
 userRoutes.get("/all-users", adminAuthentication, getUserList);
 userRoutes.post("/delete-block", deleteAndBlockUser);
 userRoutes.post("/send", sendMessageByUser);
-
+userRoutes.post("/save-fcm", userAuthMiddleware, saveFcmToken);
+userRoutes.get("/send-notification", sendFirebaseNotification);
 module.exports = userRoutes;
