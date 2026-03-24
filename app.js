@@ -20,17 +20,25 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 /* ================= CORS (ALLOW ALL ORIGINS) ================= */
+const allowedOrigins = [
+  "http://localhost:3000",
+  "http://localhost:3001",
+  "https://git-branch-m-main.vercel.app",
+];
+
 app.use(
   cors({
-    origin: true, // allow all origins dynamically
-    credentials: true, // allow cookies / auth headers
-    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-    allowedHeaders: [
-      "Content-Type",
-      "Authorization",
-      "X-Requested-With",
-      "Accept",
-    ],
+    origin: function (origin, callback) {
+      // allow requests with no origin (like Postman, mobile apps)
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      } else {
+        return callback(new Error("Not allowed by CORS"));
+      }
+    },
+    credentials: true,
   }),
 );
 
