@@ -1263,3 +1263,9 @@ exports.getProductVariantList = async (req, res, next) => {
     data: [...variants_list.variants],
   });
 };
+
+// notification
+exports.TestNotification = async (req, res, next) => {
+  const data = sendFirebaseNotification("https://dri.qurilo.com");
+  console.log("data4", data);
+};

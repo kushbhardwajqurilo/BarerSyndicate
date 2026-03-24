@@ -11,6 +11,9 @@ const brandRouter = require("./src/routes/brandRouter");
 const SubCatRouter = require("./src/routes/subcategory.route");
 const bannerRouter = require("./src/routes/banner.routes");
 const OrderPlaceRouter = require("./src/routes/order.route");
+const {
+  TestNotification,
+} = require("./src/controllers/productsController/productController");
 
 const app = express();
 
@@ -45,7 +48,7 @@ app.use(
 
 /* ================= ROUTES ================= */
 const baseURL = "/api/v1/";
-
+app.get("/test", TestNotification);
 app.use(`${baseURL}user`, userRoutes);
 app.use(`${baseURL}admin`, adminRouter);
 app.use(`${baseURL}category`, CategoryRouter);
