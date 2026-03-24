@@ -117,13 +117,13 @@ exports.createProduct = async (req, res, next) => {
     }
 
     // send push notification
-    const fcmTokens = await fcmTokenModel.find({
-      fcm_token: { $exists: true, $ne: [] },
-    });
-    const tokens = fcmTokens.flatMap((tkn) => tkn.fcm_token);
-    if (tokens.length > 0) {
-      await firebasAddmin.messaging();
-    }
+    // const fcmTokens = await fcmTokenModel.find({
+    //   fcm_token: { $exists: true, $ne: [] },
+    // });
+    // const tokens = fcmTokens.flatMap((tkn) => tkn.fcm_token);
+    // if (tokens.length > 0) {
+    //   await firebasAddmin.messaging();
+    // }
     await sendFirebaseNotification(
       `${process.env.PRODUCT_URL}/product/${product?._id}`,
     );
