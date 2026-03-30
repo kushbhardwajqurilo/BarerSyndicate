@@ -6,6 +6,7 @@ const productModel = require("../../models/productModel");
 const fcmTokenModel = require("../../models/firebaseToken.model");
 const firebasAddmin = require("../../config/firebase/firebase");
 const { sendFirebaseNotification } = require("../firebase/firebase.controller");
+const NotificationModel = require("../../models/notificationModel");
 exports.createProduct = async (req, res, next) => {
   try {
     const files = req.files;
@@ -127,6 +128,13 @@ exports.createProduct = async (req, res, next) => {
     await sendFirebaseNotification(
       `${process.env.PRODUCT_URL}/product/${product?._id}`,
     );
+    const notificationPayload = {
+      image: images[0],
+      product_name: name,
+      product_url: `${process.env.PRODUCT_URL}/product/${product?._id}`,
+      product_id: product?._id,
+    };
+    await NotificationModel.create(notificationPayload);
     return res.status(201).json({
       message: "Product add successfully",
       success: true,
@@ -1234,38 +1242,64 @@ exports.activeAndDeactivateProductController = async (req, res, next) => {
 
 // get product variants list
 exports.getProductVariantList = async (req, res, next) => {
-  const { p_id } = req.params;
-  if (!p_id) {
-    return res.status(400).json({
-      status: false,
-      message: "product id missing",
-    });
-  }
-  if (!mongoose.Types.ObjectId.isValid(p_id)) {
-    return res.status(400).json({
-      status: false,
-      message: "Invalid Product-id",
-    });
-  }
+  try {
+    const { p_id } = req.params;
+    if (!p_id) {
+      return res.status(400).json({
+        status: false,
+        message: "product id missing",
+      });
+    }
+    if (!mongoose.Types.ObjectId.isValid(p_id)) {
+      return res.status(400).json({
+        status: false,
+        message: "Invalid Product-id",
+      });
+    }
 
-  const variants_list = await ProductModel.findOne({ _id: p_id }).select(
-    "variants",
-  );
-  if (!variants_list) {
-    return res.status(400).json({
-      status: false,
-      message: "variants not found",
+    const variants_list = await ProductModel.findOne({ _id: p_id }).select(
+      "variants",
+    );
+    if (!variants_list) {
+      return res.status(400).json({
+        status: false,
+        message: "variants not found",
+      });
+    }
+    return res.status(200).json({
+      status: true,
+      message: "success",
+      data: [...variants_list.variants],
     });
+  } catch (error) {
+    return res.status(500).json;
   }
-  return res.status(200).json({
-    status: true,
-    message: "success",
-    data: [...variants_list.variants],
-  });
 };
 
 // notification
 exports.TestNotification = async (req, res, next) => {
   const data = sendFirebaseNotification("https://dri.qurilo.com");
   console.log("data4", data);
+};
+
+// get product notifiaitoin
+exports.getProductNotification = async (req, res) => {
+  try {
+    const notifications = await NotificationModel.find({})
+      .sort({ createdAt: -1 })
+      .limit(5);
+    if (!notifications) {
+      return res.status(200).json({
+        status: true,
+        message: "No Notifications",
+        data: [],
+      });
+    }
+    return res.status(200).json({
+      status: true,
+      data: notifications,
+    });
+  } catch (error) {
+    return res.status(500).json({ status: false, message: error.message });
+  }
 };

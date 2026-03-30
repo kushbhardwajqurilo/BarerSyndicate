@@ -14,6 +14,7 @@ const {
   getNewArrivalProduct,
   getProductVariantList,
   getAllProductsForUser,
+  getProductNotification,
 } = require("../controllers/productsController/productController");
 const { adminAuthentication } = require("../middlewares/AdminAuthetication");
 const ImageUpload = require("../middlewares/ImageUploader");
@@ -71,4 +72,5 @@ ProductsRouter.post(
 
 ProductsRouter.get("/get-variants/:p_id", getProductVariantList);
 ProductsRouter.get("/new-arrival", getNewArrivalProduct);
+ProductsRouter.get("/notification", getProductNotification);
 module.exports = ProductsRouter;
