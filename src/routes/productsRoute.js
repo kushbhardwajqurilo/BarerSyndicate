@@ -74,3 +74,4 @@ ProductsRouter.get("/get-variants/:p_id", getProductVariantList);
 ProductsRouter.get("/new-arrival", getNewArrivalProduct);
 ProductsRouter.get("/notification", getProductNotification);
 module.exports = ProductsRouter;
+//
