@@ -815,6 +815,10 @@ exports.deleteProduct = async (req, res, next) => {
         .status(400)
         .json({ message: "Product not found", success: false });
     }
+    const notificationDelete = await NotificationModel.deleteOne({
+      product_id: productId,
+    });
+    // console.log("noto", notificationDelete);
     return res.status(200).json({
       success: true,
       message: "peroduct delete",
