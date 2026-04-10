@@ -27,6 +27,7 @@ const allowedOrigins = [
   "http://localhost:3000",
   "http://localhost:3001",
   "https://git-branch-m-main.vercel.app",
+  "https://pl8p8f1d-3001.inc1.devtunnels.ms",
 ];
 
 app.use(

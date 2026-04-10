@@ -18,6 +18,12 @@ const bannerSchema = mongoose.Schema(
       enum: ["mobile", "website"],
       required: [true],
     },
+    brand: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "brand",
+      required: [true, "brand missing"],
+    },
+    url: { type: String, default: null, required: [true] },
   },
   { timestamps: true },
 );
