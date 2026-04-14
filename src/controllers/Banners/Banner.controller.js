@@ -4,12 +4,9 @@ const bannerModel = require("../../models/banner.model");
 const { default: mongoose } = require("mongoose");
 exports.addBanners = async (req, res, next) => {
   const { files } = req;
-  const { type, title, brand } = req.body;
+  const { type, title, url } = req.body;
   console.log(req.body);
-  const url =
-    process.env.NODE_ENV === "production"
-      ? `https://git-branch-m-main.vercel.app/product?page=1&brand=${brand}`
-      : `https://pl8p8f1d-3001.inc1.devtunnels.ms/product?page=1&brand=${brand}`;
+
   let insetData = [];
   for (let file of files) {
     const upload = await cloudinary.uploader.upload(file.path, {
@@ -21,7 +18,6 @@ exports.addBanners = async (req, res, next) => {
         path_key: upload.public_id,
         type,
         title: title,
-        brand,
         url,
       });
     } else {
