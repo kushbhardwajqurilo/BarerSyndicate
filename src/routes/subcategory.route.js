@@ -7,6 +7,7 @@ const {
   updateSubCat,
   aggregate,
   searchSubCategory,
+  updateSubCategoryImage,
 } = require("../controllers/categoryController.js/subCategory");
 const { adminAuthentication } = require("../middlewares/AdminAuthetication");
 const { roleAuthetication } = require("../middlewares/roleBaseAuthe");
@@ -19,7 +20,7 @@ SubCatRouter.post(
   adminAuthentication,
   roleAuthetication("admin"),
   ImageUpload.single("image"),
-  addSubCat
+  addSubCat,
 );
 SubCatRouter.get("/getsinglesubcat/:id", singleSubCat);
 SubCatRouter.delete("/deletesubcat/:id", deleteSubCat);
@@ -28,4 +29,11 @@ SubCatRouter.get("/aggregate/:id", aggregate);
 SubCatRouter.get("/searchSubCategory", searchSubCategory);
 // SubCatRouter.get("/getSubcategory");
 SubCatRouter.get("/subcategorybycategory", getSubCat);
+SubCatRouter.put(
+  "/update-image/:id",
+  // adminAuthentication,
+  // roleAuthetication("admin"),
+  ImageUpload.single("image"),
+  updateSubCategoryImage,
+);
 module.exports = SubCatRouter;

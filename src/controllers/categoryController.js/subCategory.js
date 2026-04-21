@@ -2,6 +2,7 @@ const { default: mongoose } = require("mongoose");
 const subCategoryModel = require("../../models/subCategory.model");
 const { ObjectId } = require("mongodb");
 const cloudinary = require("../../config/cloudinary/cloudinary");
+const fs = require("fs");
 //add sub category controller
 exports.addSubCat = async function (req, res, next) {
   try {
@@ -273,4 +274,41 @@ exports.getSubCatByCate = async (req, res) => {
   }
 };
 
-// get product by subcastegory
+// update sub category image
+exports.updateSubCategoryImage = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const file = req.file.path;
+    if (!file) {
+      return res.status(400).json({ message: "Please upload a file" });
+    }
+    const upload = await cloudinary.uploader.upload(file, {
+      folder: "BS-category-image",
+    });
+    if (!upload) {
+      return res.status(400).json({ message: "Failed to upload image" });
+    }
+    fs.unlinkSync(file);
+    if (!id) {
+      return res.status(400).json({
+        message: "Invalid id",
+      });
+    }
+    const subcategory = await subCategoryModel.findByIdAndUpdate(
+      id,
+      { icon: upload.secure_url },
+      { new: true },
+    );
+    if (!subcategory) {
+      return res.status(400).json({
+        message: "subcategory not found",
+      });
+    }
+    return res.status(200).json({
+      message: "subcategory image updated successfully",
+      data: subcategory,
+    });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: error.message });
+  }
+};
