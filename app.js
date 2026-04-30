@@ -28,6 +28,8 @@ const allowedOrigins = [
   "http://localhost:3001",
   "https://git-branch-m-main.vercel.app",
   "https://pl8p8f1d-3001.inc1.devtunnels.ms",
+  "http://199.192.22.149:3021",
+  "https://3846.in",
 ];
 
 app.use(
