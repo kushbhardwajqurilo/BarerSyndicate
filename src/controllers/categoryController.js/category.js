@@ -5,7 +5,9 @@ const cloudinary = require("../../config/cloudinary/cloudinary");
 
 exports.createCategory = async (req, res, next) => {
   try {
-    const file = req.file.path;
+    // console.log("hello");
+    // console.log("category body:", req.body);
+    const file = req?.body?.file;
     if (!file) {
       return res.status(400).json({ message: "Please upload a file" });
     }
@@ -21,16 +23,16 @@ exports.createCategory = async (req, res, next) => {
         .status(200)
         .json({ success: false, message: "This category already exist" });
     }
-    const upload = await cloudinary.uploader.upload(file, {
-      folder: "BS-category-image",
-    });
-    if (!upload) {
-      return res.status(400).json({ message: "Failed to upload image" });
-    }
-    fs.unlinkSync(file);
+    // const upload = await cloudinary.uploader.upload(file, {
+    //   folder: "BS-category-image",
+    // });
+    // if (!upload) {
+    //   return res.status(400).json({ message: "Failed to upload image" });
+    // }
+    // fs.unlinkSync(file);
     const payload = {
       categoryname: name,
-      catImg: upload.secure_url,
+      catImg: file,
     };
     const category = await categoryModel.create(payload);
     if (!category) {
@@ -42,6 +44,7 @@ exports.createCategory = async (req, res, next) => {
       message: "Category created successfully",
     });
   } catch (err) {
+    console.log("error:", err);
     return res.status(500).json({
       message: err.message,
       success: false,
@@ -76,7 +79,7 @@ exports.updateCategory = async (req, res, next) => {
       { categoryname: name },
       {
         new: true,
-      }
+      },
     );
     if (!category) {
       return res.status(400).json({
@@ -192,29 +195,31 @@ exports.searchCategory = async (req, res, next) => {
   }
 };
 
-
-
-// category image updte 
+// category image updte
 exports.updateCategoryImage = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const file = req.file.path;
+    const file = req.body.file;
     if (!file) {
       return res.status(400).json({ message: "Please upload a file" });
     }
-    const upload = await cloudinary.uploader.upload(file, {
-      folder: "BS-category-image",
-    });
-    if (!upload) {
-      return res.status(400).json({ message: "Failed to upload image" });
-    }
-    fs.unlinkSync(file);
+    // const upload = await cloudinary.uploader.upload(file, {
+    //   folder: "BS-category-image",
+    // });
+    // if (!upload) {
+    //   return res.status(400).json({ message: "Failed to upload image" });
+    // // }
+    // // fs.unlinkSync(file);
     if (!id) {
       return res.status(400).json({
         message: "Invalid id",
       });
     }
-    const category = await categoryModel.findByIdAndUpdate(id, { catImg: upload.secure_url }, { new: true });
+    const category = await categoryModel.findByIdAndUpdate(
+      id,
+      { catImg: file },
+      { new: true },
+    );
     if (!category) {
       return res.status(400).json({
         message: "Category not found",

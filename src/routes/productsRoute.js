@@ -43,7 +43,6 @@ ProductsRouter.put(
   "/:id",
   adminAuthentication,
   roleAuthetication("admin"),
-  ImageUpload.array("image", 7),
   updateProduct,
 );
 ProductsRouter.delete(
@@ -66,7 +65,6 @@ ProductsRouter.post(
   "/add-image/:id",
   adminAuthentication,
   roleAuthetication("admin"),
-  ImageUpload.array("image", 7),
   addNewImageInProduct,
 );
 

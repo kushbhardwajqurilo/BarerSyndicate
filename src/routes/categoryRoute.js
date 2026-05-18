@@ -17,20 +17,19 @@ CategoryRouter.post(
   "/",
   adminAuthentication,
   roleAuthetication("admin"),
-  ImageUpload.single("image"),
-  createCategory
+  createCategory,
 );
 CategoryRouter.put(
   "/:id",
   adminAuthentication,
   roleAuthetication("admin"),
-  updateCategory
+  updateCategory,
 );
 CategoryRouter.delete(
   "/:id",
   adminAuthentication,
   roleAuthetication("admin"),
-  deleteCategory
+  deleteCategory,
 );
 CategoryRouter.get("/", getAllCategory);
 CategoryRouter.get("/:id", getSingleCategory);
@@ -38,7 +37,6 @@ CategoryRouter.post(
   "/update-image/:id",
   adminAuthentication,
   roleAuthetication("admin"),
-  ImageUpload.single("image"),
-  updateCategoryImage
+  updateCategoryImage,
 );
 module.exports = CategoryRouter;

@@ -4,7 +4,7 @@ const brandModel = require("../../models/brandModel");
 const fs = require("fs");
 exports.addBrands = async (req, res) => {
   try {
-    const file = req.file;
+    const file = req?.body?.file;
     if (!file || file.length === 0) {
       return res
         .status(400)
@@ -20,18 +20,11 @@ exports.addBrands = async (req, res) => {
     }
     const { name, category, subcategory } = req.body;
 
-    const icon_upload = await cloudinary.uploader.upload(file.path, {
-      folder: "BRAND_ICONS",
-    });
-    if (!icon_upload) {
-      fs.unlinkSync(file.path);
-    }
-    fs.unlinkSync(file.path);
     const insertBrand = await brandModel.create({
       brand: name,
       subcategory: subcategory,
       category: category,
-      icons: icon_upload.secure_url,
+      icons: file,
     });
     if (!insertBrand) {
       return res.status(400).json({
@@ -73,9 +66,9 @@ exports.getBrands = async (req, res) => {
 
 exports.editBrand = async (req, res, next) => {
   try {
-    const { name, category, subcategory } = req.body;
+    const { name, category, subcategory, file } = req.body;
     const { id } = req.params; // brand id
-    console.log({ file: req.file, name, id });
+    console.log({ file: req.body, name, id });
     if (!name) {
       return res.status(400).json({
         success: false,
@@ -87,14 +80,8 @@ exports.editBrand = async (req, res, next) => {
       brand: name,
       category,
       subcategory,
+      icons: file,
     };
-
-    if (req.file) {
-      const upload = await cloudinary.uploader.upload(req.file.path, {
-        folder: "BRAND_ICONS",
-      });
-      updateData.icons = upload.secure_url; // or req.file.filename
-    }
 
     const updatedBrand = await brandModel.findByIdAndUpdate(id, updateData, {
       new: true,

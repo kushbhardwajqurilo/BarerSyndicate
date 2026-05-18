@@ -14,6 +14,7 @@ const OrderPlaceRouter = require("./src/routes/order.route");
 const {
   TestNotification,
 } = require("./src/controllers/productsController/productController");
+const { generatePresignUrl } = require("./src/config/aws/awsConfig");
 
 const app = express();
 
@@ -61,6 +62,7 @@ app.use(`${baseURL}enquiry`, enquiryRouter);
 app.use(`${baseURL}brands`, brandRouter);
 app.use(`${baseURL}banner`, bannerRouter);
 app.use(`${baseURL}order`, OrderPlaceRouter);
+app.post(`${baseURL}upload/presigned-url`, generatePresignUrl);
 
 /* ================= GLOBAL ERROR HANDLER ================= */
 app.use((err, req, res, next) => {

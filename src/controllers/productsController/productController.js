@@ -9,7 +9,8 @@ const { sendFirebaseNotification } = require("../firebase/firebase.controller");
 const NotificationModel = require("../../models/notificationModel");
 exports.createProduct = async (req, res, next) => {
   try {
-    const files = req.files;
+    const files = req?.body?.file;
+    // console.log("files", files);
     let {
       name,
       description,
@@ -75,11 +76,7 @@ exports.createProduct = async (req, res, next) => {
     // Upload images to Cloudinary (uncomment when ready)
     const images = [];
     for (const file of files) {
-      const uploadCloud = await cloudinary.uploader.upload(file.path, {
-        folder: "BS Products",
-      });
-      images.push(uploadCloud.secure_url);
-      fs.unlinkSync(file.path);
+      images.push(file);
     }
 
     variants = variants.map((variant) => {
@@ -667,6 +664,7 @@ exports.updateProduct = async (req, res) => {
       key_feature,
       isFeature,
       keywords,
+      images,
     } = req.body;
 
     if (name) product.name = cleanString(name);
@@ -690,7 +688,7 @@ exports.updateProduct = async (req, res) => {
       product.points = safeJsonParse(points, []);
       product.markModified("points");
     }
-
+    product.images = images;
     /* ================= VARIANTS UPDATE ================= */
 
     if (variants !== undefined) {
@@ -1133,7 +1131,7 @@ exports.addNewImageInProduct = async (req, res) => {
       });
     }
 
-    if (!req.files || req.files.length === 0) {
+    if (!req.body.file || req.file.length === 0) {
       return res.status(400).json({
         status: false,
         message: "Image Required",
@@ -1142,10 +1140,6 @@ exports.addNewImageInProduct = async (req, res) => {
 
     const product = await productModel.findById(id);
     if (!product) {
-      req.files.forEach((file) => {
-        fs.existsSync(file.path) && fs.unlinkSync(file.path);
-      });
-
       return res.status(404).json({
         status: false,
         message: "Product not found",
@@ -1155,13 +1149,8 @@ exports.addNewImageInProduct = async (req, res) => {
     /* ---------- UPLOAD IMAGES ---------- */
     const uploadedImages = [];
 
-    for (const file of req.files) {
-      const result = await cloudinary.uploader.upload(file.path, {
-        folder: "BS Products",
-      });
-
-      uploadedImages.push(result.secure_url);
-      fs.unlinkSync(file.path);
+    for (const file of req.body.file) {
+      uploadedImages.push(file);
     }
 
     /* ---------- SAVE ---------- */

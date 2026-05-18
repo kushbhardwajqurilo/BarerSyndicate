@@ -10,6 +10,7 @@ exports.addSubCat = async function (req, res, next) {
       subCatName: req.body.subCatName,
       subCatTitle: req.body.subCatTitle,
       catId: req.body.catId,
+      icon: req.body.file,
     };
     if (!mongoose.Types.ObjectId.isValid(subCat.catId)) {
       return res.status(400).json({
@@ -17,16 +18,16 @@ exports.addSubCat = async function (req, res, next) {
         message: "Invalid Category id",
       });
     }
-    const file = await cloudinary.uploader.upload(req.file.path, {
-      folder: "BS-category-image",
-    });
-    if (!file) {
-      return req.status(400).json({
-        status: false,
-        message: "failed to upload icon",
-      });
-    }
-    subCat.icon = file.secure_url;
+    // const file = await cloudinary.uploader.upload(req.file.path, {
+    //   folder: "BS-category-image",
+    // });
+    // if (!file) {
+    //   return req.status(400).json({
+    //     status: false,
+    //     message: "failed to upload icon",
+    //   });
+    // }
+    // subCat.icon = file.secure_url;
     const resData = await subCategoryModel.create(subCat);
     if (resData) {
       res.json({
@@ -82,6 +83,7 @@ exports.updateSubCat = async function (req, res, next) {
       subCatName: req.body.subCatName,
       subCatTitle: req.body.subCatTitle,
       catId: req.body.catId,
+      icon: req.body.file,
     };
     console.log("ss", updateData);
     const resData = await subCategoryModel.updateOne(query, updateData);
@@ -278,17 +280,17 @@ exports.getSubCatByCate = async (req, res) => {
 exports.updateSubCategoryImage = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const file = req.file.path;
+    const file = req.body?.file;
     if (!file) {
       return res.status(400).json({ message: "Please upload a file" });
     }
-    const upload = await cloudinary.uploader.upload(file, {
-      folder: "BS-category-image",
-    });
-    if (!upload) {
-      return res.status(400).json({ message: "Failed to upload image" });
-    }
-    fs.unlinkSync(file);
+    // const upload = await cloudinary.uploader.upload(file, {
+    //   folder: "BS-category-image",
+    // });
+    // if (!upload) {
+    //   return res.status(400).json({ message: "Failed to upload image" });
+    // }
+    // fs.unlinkSync(file);
     if (!id) {
       return res.status(400).json({
         message: "Invalid id",
@@ -296,7 +298,7 @@ exports.updateSubCategoryImage = async (req, res, next) => {
     }
     const subcategory = await subCategoryModel.findByIdAndUpdate(
       id,
-      { icon: upload.secure_url },
+      { icon: file },
       { new: true },
     );
     if (!subcategory) {

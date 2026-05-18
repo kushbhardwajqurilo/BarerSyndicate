@@ -3,30 +3,19 @@ const fs = require("fs");
 const bannerModel = require("../../models/banner.model");
 const { default: mongoose } = require("mongoose");
 exports.addBanners = async (req, res, next) => {
-  const { files } = req;
+  const { file } = req.body;
   const { type, title, url } = req.body;
   console.log(req.body);
 
-  let insetData = [];
-  for (let file of files) {
-    const upload = await cloudinary.uploader.upload(file.path, {
-      folder: "Barber_Syndicate_Banners",
-    });
-    if (upload) {
-      insetData.push({
-        banner: upload.secure_url,
-        path_key: upload.public_id,
-        type,
-        title: title,
-        url,
-      });
-    } else {
-      return res.json({ status: false, message: "Unable to upload" });
-    }
-    fs.unlinkSync(file.path);
-  }
+  const insetData = {
+    banner: file,
+    path_key: "xyz",
+    type,
+    title: title,
+    url,
+  };
 
-  const bannerSave = await bannerModel.insertMany(insetData);
+  const bannerSave = await bannerModel.create(insetData);
   if (!bannerSave) {
     return res.status(400).json({
       status: false,
