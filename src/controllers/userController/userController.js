@@ -737,6 +737,170 @@ exports.sendMessageByUser = async (req, res, next) => {
     />
 
     <title>Thank You For Contacting Us</title>
+
+    <style>
+      @media only screen and (max-width: 680px) {
+        .email-container {
+          width: 100% !important;
+          max-width: 100% !important;
+        }
+
+        .email-wrapper {
+          padding: 20px 10px !important;
+        }
+
+        .email-header {
+          padding: 30px 20px !important;
+        }
+
+        .email-logo {
+          width: 50px !important;
+          height: 50px !important;
+          font-size: 24px !important;
+          line-height: 50px !important;
+          margin-bottom: 12px !important;
+        }
+
+        .email-header h1 {
+          font-size: 24px !important;
+        }
+
+        .email-header p {
+          font-size: 12px !important;
+        }
+
+        .email-body {
+          padding: 30px 20px !important;
+        }
+
+        .email-body h2 {
+          font-size: 24px !important;
+        }
+
+        .email-body p {
+          font-size: 14px !important;
+          line-height: 26px !important;
+        }
+
+        .status-box,
+        .response-box {
+          margin-top: 20px !important;
+        }
+
+        .status-box td,
+        .response-box td {
+          padding: 18px !important;
+        }
+
+        .status-box h3,
+        .response-box h3 {
+          font-size: 16px !important;
+        }
+
+        .status-box p,
+        .response-box p {
+          font-size: 14px !important;
+          line-height: 24px !important;
+        }
+
+        .email-footer {
+          padding: 20px 15px !important;
+        }
+
+        .email-footer p {
+          font-size: 12px !important;
+          line-height: 20px !important;
+        }
+
+        .signature-section {
+          margin-top: 25px !important;
+          padding-top: 20px !important;
+        }
+
+        .signature-section p {
+          font-size: 14px !important;
+        }
+      }
+
+      @media only screen and (max-width: 480px) {
+        .email-wrapper {
+          padding: 15px 5px !important;
+        }
+
+        .email-header {
+          padding: 20px 15px !important;
+        }
+
+        .email-logo {
+          width: 45px !important;
+          height: 45px !important;
+          font-size: 20px !important;
+          line-height: 45px !important;
+          margin-bottom: 10px !important;
+        }
+
+        .email-header h1 {
+          font-size: 20px !important;
+        }
+
+        .email-header p {
+          font-size: 11px !important;
+        }
+
+        .email-body {
+          padding: 20px 15px !important;
+        }
+
+        .email-body h2 {
+          font-size: 20px !important;
+        }
+
+        .email-body p {
+          font-size: 13px !important;
+          line-height: 24px !important;
+          margin-top: 15px !important;
+        }
+
+        .status-box,
+        .response-box {
+          margin-top: 15px !important;
+        }
+
+        .status-box td,
+        .response-box td {
+          padding: 15px !important;
+        }
+
+        .status-box h3,
+        .response-box h3 {
+          font-size: 15px !important;
+        }
+
+        .status-box p,
+        .response-box p {
+          font-size: 13px !important;
+          line-height: 22px !important;
+        }
+
+        .email-footer {
+          padding: 15px 10px !important;
+        }
+
+        .email-footer p {
+          font-size: 11px !important;
+          line-height: 18px !important;
+        }
+
+        .signature-section {
+          margin-top: 20px !important;
+          padding-top: 15px !important;
+        }
+
+        .signature-section p {
+          font-size: 13px !important;
+        }
+      }
+    </style>
   </head>
 
   <body
@@ -747,14 +911,15 @@ exports.sendMessageByUser = async (req, res, next) => {
       font-family: &quot;Poppins&quot;, &quot;Segoe UI&quot;, Arial, sans-serif;
     "
   >
-    <table width="100%" cellpadding="0" cellspacing="0" border="0">
+    <table width="100%" cellpadding="0" cellspacing="0" border="0" class="email-wrapper">
       <tr>
-        <td align="center" style="padding: 40px 20px">
+        <td align="center" style="padding: 40px 20px" class="email-wrapper">
           <table
             width="650"
             cellpadding="0"
             cellspacing="0"
             border="0"
+            class="email-container"
             style="
               background: #ffffff;
               border-radius: 18px;
@@ -767,8 +932,10 @@ exports.sendMessageByUser = async (req, res, next) => {
             <tr>
               <td
                 style="background: #111827; padding: 40px; text-align: center"
+                class="email-header"
               >
                 <div
+                  class="email-logo"
                   style="
                     width: 60px;
                     height: 60px;
@@ -810,7 +977,7 @@ exports.sendMessageByUser = async (req, res, next) => {
 
             <!-- Body -->
             <tr>
-              <td style="padding: 50px">
+              <td style="padding: 50px" class="email-body">
                 <h2
                   style="
                     margin: 0;
@@ -851,6 +1018,7 @@ exports.sendMessageByUser = async (req, res, next) => {
                   cellpadding="0"
                   cellspacing="0"
                   border="0"
+                  class="status-box"
                   style="
                     margin-top: 30px;
                     background: #f8fafc;
@@ -893,6 +1061,7 @@ exports.sendMessageByUser = async (req, res, next) => {
                   cellpadding="0"
                   cellspacing="0"
                   border="0"
+                  class="response-box"
                   style="
                     margin-top: 25px;
                     background: #eff6ff;
@@ -942,6 +1111,7 @@ exports.sendMessageByUser = async (req, res, next) => {
 
                 <!-- Signature -->
                 <div
+                  class="signature-section"
                   style="
                     margin-top: 35px;
                     padding-top: 25px;
@@ -975,6 +1145,7 @@ exports.sendMessageByUser = async (req, res, next) => {
                   padding: 30px;
                   text-align: center;
                 "
+                class="email-footer"
               >
                 <p
                   style="
@@ -1149,6 +1320,184 @@ exports.sendMessageByUser = async (req, res, next) => {
         font-size: 13px;
         line-height: 24px;
       }
+
+      @media only screen and (max-width: 680px) {
+        .container {
+          max-width: 100% !important;
+          margin: 20px 15px !important;
+          border-radius: 14px;
+        }
+
+        .header {
+          padding: 25px 25px !important;
+        }
+
+        .brand {
+          font-size: 24px !important;
+        }
+
+        .subtitle {
+          font-size: 12px !important;
+          margin-top: 6px;
+        }
+
+        .badge {
+          margin-top: 12px;
+          padding: 8px 15px !important;
+          font-size: 12px !important;
+        }
+
+        .content {
+          padding: 30px 25px !important;
+        }
+
+        .title {
+          font-size: 24px !important;
+        }
+
+        .description {
+          margin-top: 12px;
+          font-size: 14px !important;
+          line-height: 26px;
+        }
+
+        .card {
+          margin-top: 15px;
+          padding: 16px !important;
+        }
+
+        .label {
+          font-size: 11px !important;
+          margin-bottom: 6px;
+        }
+
+        .value {
+          font-size: 15px !important;
+        }
+
+        .message-box {
+          margin-top: 15px;
+          padding: 16px !important;
+          font-size: 14px !important;
+          line-height: 26px;
+        }
+
+        .info {
+          margin-top: 20px;
+          padding: 16px !important;
+        }
+
+        .info-title {
+          font-size: 14px !important;
+          margin-bottom: 8px;
+        }
+
+        .info {
+          font-size: 14px !important;
+          line-height: 24px;
+        }
+
+        .reply-btn {
+          margin-top: 25px;
+          padding: 12px 24px !important;
+          font-size: 14px !important;
+        }
+
+        .footer {
+          padding: 18px 15px !important;
+          font-size: 12px !important;
+          line-height: 20px;
+        }
+      }
+
+      @media only screen and (max-width: 480px) {
+        .container {
+          max-width: 100% !important;
+          margin: 15px 10px !important;
+          border-radius: 12px;
+        }
+
+        .header {
+          padding: 20px 18px !important;
+        }
+
+        .brand {
+          font-size: 20px !important;
+        }
+
+        .subtitle {
+          font-size: 11px !important;
+          margin-top: 5px;
+        }
+
+        .badge {
+          margin-top: 10px;
+          padding: 7px 12px !important;
+          font-size: 11px !important;
+        }
+
+        .content {
+          padding: 22px 18px !important;
+        }
+
+        .title {
+          font-size: 20px !important;
+        }
+
+        .description {
+          margin-top: 10px;
+          font-size: 13px !important;
+          line-height: 24px;
+        }
+
+        .card {
+          margin-top: 12px;
+          padding: 14px !important;
+        }
+
+        .label {
+          font-size: 10px !important;
+          margin-bottom: 5px;
+        }
+
+        .value {
+          font-size: 14px !important;
+        }
+
+        .message-box {
+          margin-top: 12px;
+          padding: 14px !important;
+          font-size: 13px !important;
+          line-height: 24px;
+        }
+
+        .info {
+          margin-top: 18px;
+          padding: 14px !important;
+        }
+
+        .info-title {
+          font-size: 13px !important;
+          margin-bottom: 7px;
+        }
+
+        .info {
+          font-size: 13px !important;
+          line-height: 22px;
+        }
+
+        .reply-btn {
+          margin-top: 20px;
+          padding: 11px 20px !important;
+          font-size: 13px !important;
+        }
+
+        .footer {
+          padding: 15px 12px !important;
+          font-size: 11px !important;
+          line-height: 18px;
+        }
+      }
     </style>
   </head>
 
@@ -1209,7 +1558,6 @@ exports.sendMessageByUser = async (req, res, next) => {
     </div>
   </body>
 </html>
-
 `;
 
     // Correct call
