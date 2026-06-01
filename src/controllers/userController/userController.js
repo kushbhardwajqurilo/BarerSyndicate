@@ -218,21 +218,261 @@ exports.forgetUserPassword = async (req, res, next) => {
     });
 
     // send OTP via SMS API
-    const apiUrl = `https://sms.autobysms.com/app/smsapi/index.php?key=45FA150E7D83D8&campaign=0&routeid=9&type=text&contacts=${phone}&senderid=SMSSPT&msg=Your OTP is ${otp} SELECTIAL&template_id=1707166619134631839`;
+    // const apiUrl = `https://sms.autobysms.com/app/smsapi/index.php?key=45FA150E7D83D8&campaign=0&routeid=9&type=text&contacts=${phone}&senderid=SMSSPT&msg=Your OTP is ${otp} SELECTIAL&template_id=1707166619134631839`;
+    // const response = await axios.get(apiUrl);
+    const forgetMailTemplate = (data) => {
+      return `
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Password Reset</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  </head>
 
-    const response = await axios.get(apiUrl);
-    if (response.data.type === "SUCCESS") {
-      return res.status(200).json({
-        success: true,
-        message: "OTP sent successfully to registered number",
-      });
-    } else {
-      return res.status(500).json({
-        success: false,
-        message: "Failed to send OTP",
-        error: response.data,
-      });
-    }
+ <body style="
+margin:0;
+padding:0;
+background:#f4f7fb;
+font-family:'Poppins','Segoe UI',Arial,sans-serif;
+">
+    <table width="100%" cellpadding="0" cellspacing="0" border="0">
+      <tr>
+        <td align="center" style="padding: 40px 20px">
+          <table
+            width="600"
+            cellpadding="0"
+            cellspacing="0"
+            border="0"
+            style="
+              background: #ffffff;
+              border-radius: 16px;
+              overflow: hidden;
+              border: 1px solid #e5e7eb;
+              box-shadow: 0 10px 35px rgba(0, 0, 0, 0.05);
+            "
+          >
+            <!-- Header -->
+            <tr>
+              <td style="padding: 32px 40px; border-bottom: 1px solid #eef2f7">
+                <table width="100%">
+                  <tr>
+                    <td align="left">
+                      <div
+                        style="
+                          font-size: 24px;
+                          font-weight: 700;
+                          color: #111827;
+                        "
+                      >
+                        Barber Syndicate
+                      </div>
+
+                      <div
+                        style="
+                          margin-top: 6px;
+                          font-size: 13px;
+                          color: #6b7280;
+                          letter-spacing: 1px;
+                          text-transform: uppercase;
+                        "
+                      >
+                        Account Security
+                      </div>
+                    </td>
+
+                    <td align="right">
+                      <div
+                        style="
+                          width: 48px;
+                          height: 48px;
+                          border-radius: 12px;
+                          background: #2563eb;
+                          color: #ffffff;
+                          font-size: 22px;
+                          font-weight: 700;
+                          line-height: 48px;
+                          text-align: center;
+                        "
+                      >
+                        S
+                      </div>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+
+            <!-- Body -->
+            <tr>
+              <td style="padding: 50px 40px">
+                <h1
+                  style="
+                    margin: 0;
+                    font-size: 30px;
+                    color: #111827;
+                    font-weight: 700;
+                  "
+                >
+                  Password Reset Request
+                </h1>
+
+                <p
+                  style="
+                    margin: 20px 0 0;
+                    font-size: 16px;
+                    line-height: 28px;
+                    color: #4b5563;
+                  "
+                >
+                  We received a request to reset the password associated with
+                  your account. Use the verification code below to continue the
+                  password reset process.
+                </p>
+
+                <!-- OTP Box -->
+                <table
+                  width="100%"
+                  cellpadding="0"
+                  cellspacing="0"
+                  border="0"
+                  style="margin-top: 35px"
+                >
+                  <tr>
+                    <td align="center">
+                      <div
+                        style="
+                          display: inline-block;
+                          padding: 24px 40px;
+                          background: #f8fafc;
+                          border: 2px solid #dbeafe;
+                          border-radius: 14px;
+                        "
+                      >
+                        <span
+                          style="
+                            font-size: 42px;
+                            font-weight: 700;
+                            letter-spacing: 14px;
+                            color: #2563eb;
+                            font-family: Arial, Helvetica, sans-serif;
+                          "
+                        >
+                          ${data}
+                        </span>
+                      </div>
+                    </td>
+                  </tr>
+                </table>
+
+                <!-- Expiry -->
+                <div
+                  style="
+                    margin-top: 25px;
+                    padding: 16px 20px;
+                    background: #eff6ff;
+                    border-left: 4px solid #2563eb;
+                    border-radius: 8px;
+                    font-size: 14px;
+                    color: #1e40af;
+                  "
+                >
+                  This verification code will expire in
+                  <strong>5 minutes</strong>.
+                </div>
+
+                <!-- Security Notice -->
+                <div
+                  style="
+                    margin-top: 35px;
+                    padding: 24px;
+                    background: #f9fafb;
+                    border: 1px solid #e5e7eb;
+                    border-radius: 12px;
+                  "
+                >
+                  <div
+                    style="
+                      font-size: 16px;
+                      font-weight: 600;
+                      color: #111827;
+                      margin-bottom: 10px;
+                    "
+                  >
+                    Security Notice
+                  </div>
+
+                  <div
+                    style="font-size: 14px; line-height: 24px; color: #6b7280"
+                  >
+                    Never share this verification code with anyone. Our support
+                    team will never ask for your OTP or password.
+                  </div>
+                </div>
+
+                <!-- Didn't Request -->
+                <div
+                  style="
+                    margin-top: 35px;
+                    font-size: 15px;
+                    line-height: 28px;
+                    color: #4b5563;
+                  "
+                >
+                  If you did not request a password reset, you can safely ignore
+                  this email. No changes will be made to your account.
+                </div>
+              </td>
+            </tr>
+
+            <!-- Footer -->
+            <tr>
+              <td
+                style="
+                  padding: 30px 40px;
+                  background: #f9fafb;
+                  border-top: 1px solid #e5e7eb;
+                "
+              >
+                <div
+                  style="
+                    font-size: 13px;
+                    color: #6b7280;
+                    line-height: 24px;
+                    text-align: center;
+                  "
+                >
+                  © ${new Date().getFullYear()} Barbar Syndicate. All rights
+                  reserved.
+                  <br />
+                  This is an automated security email. Please do not reply.
+                </div>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>
+`;
+    };
+    await SentMail(user?.email, "OTP Request", "", forgetMailTemplate(otp));
+    const mail = user?.email;
+    const [userName, domain] = mail.split("@");
+
+    const maskedMail =
+      userName.slice(0, 2) +
+      "*".repeat(Math.max(0, userName.length - 5)) +
+      userName.slice(-2) +
+      "@" +
+      domain;
+
+    return res.status(200).json({
+      success: true,
+      message: `OTP has been sent to ${maskedMail}. Check your inbox or spam folder`,
+    });
   } catch (error) {
     return res.status(500).json({
       success: false,
@@ -485,109 +725,491 @@ exports.sendMessageByUser = async (req, res, next) => {
     const { name, email, phone, message } = req.body;
 
     const sentHTML = (name) => `
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>Thank You for Reaching Out!</title>
-    <style>
-      body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8f9fa; color: #333; margin:0; padding:0; }
-      .container { max-width:600px; background:#fff; margin:40px auto; border-radius:12px; box-shadow:0 4px 15px rgba(0,0,0,0.08); overflow:hidden; }
-      .header { background: linear-gradient(135deg, #0078ff, #00c6ff); padding:20px; color:white; text-align:center; }
-      .header h1 { margin:0; font-size:22px; }
-      .content { padding:25px; line-height:1.6; }
-      .content h2 { font-size:20px; color:#0078ff; }
-      .footer { background:#f1f3f4; text-align:center; padding:15px; font-size:13px; color:#777; }
-      a { color:#0078ff; text-decoration:none; }
-      .signature { margin-top:20px; }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <title>Thank You For Contacting Us</title>
   </head>
-  <body>
-    <div class="container">
-      <div class="header">
-        <h1>Thank You for Contacting Us!</h1>
-      </div>
-      <div class="content">
-        <h2>Hey ${name},</h2>
-        <p>
-          We just wanted to say thank you for getting in touch! 🙌<br/>
-          Your message has been received successfully, and We’ll get back to you as soon as possible.
-        </p>
-        <p>We really appreciate you taking the time to connect — it means a lot! 💬</p>
-        <div class="signature">
-          <p>
-            Warm regards,<br/>
-            <strong>Barber Syndicate</strong><br/>
-           
-          </p>
-        </div>
-      </div>
-      <div class="footer">
-        <p>This is an automated reply. Please don’t reply to this email.<br/>
-        © ${new Date().getFullYear()} Barber Syndicate | All Rights Reserved.</p>
-      </div>
-    </div>
+
+  <body
+    style="
+      margin: 0;
+      padding: 0;
+      background: #f4f7fb;
+      font-family: &quot;Poppins&quot;, &quot;Segoe UI&quot;, Arial, sans-serif;
+    "
+  >
+    <table width="100%" cellpadding="0" cellspacing="0" border="0">
+      <tr>
+        <td align="center" style="padding: 40px 20px">
+          <table
+            width="650"
+            cellpadding="0"
+            cellspacing="0"
+            border="0"
+            style="
+              background: #ffffff;
+              border-radius: 18px;
+              overflow: hidden;
+              border: 1px solid #e5e7eb;
+              box-shadow: 0 15px 40px rgba(0, 0, 0, 0.06);
+            "
+          >
+            <!-- Header -->
+            <tr>
+              <td
+                style="background: #111827; padding: 40px; text-align: center"
+              >
+                <div
+                  style="
+                    width: 60px;
+                    height: 60px;
+                    margin: 0 auto 15px;
+                    border-radius: 14px;
+                    background: #2563eb;
+                    color: #ffffff;
+                    font-size: 28px;
+                    font-weight: 700;
+                    line-height: 60px;
+                  "
+                >
+                  B
+                </div>
+
+                <h1
+                  style="
+                    margin: 0;
+                    color: #ffffff;
+                    font-size: 30px;
+                    font-weight: 700;
+                  "
+                >
+                  Barber Syndicate
+                </h1>
+
+                <p
+                  style="
+                    margin: 10px 0 0;
+                    color: #9ca3af;
+                    font-size: 14px;
+                    letter-spacing: 1px;
+                  "
+                >
+                  PROFESSIONAL BARBER SERVICES
+                </p>
+              </td>
+            </tr>
+
+            <!-- Body -->
+            <tr>
+              <td style="padding: 50px">
+                <h2
+                  style="
+                    margin: 0;
+                    color: #111827;
+                    font-size: 32px;
+                    font-weight: 700;
+                  "
+                >
+                  Thank You for Contacting Us
+                </h2>
+
+                <p
+                  style="
+                    margin-top: 25px;
+                    color: #374151;
+                    font-size: 16px;
+                    line-height: 30px;
+                  "
+                >
+                  Dear <strong>${name}</strong>,
+                </p>
+
+                <p style="color: #4b5563; font-size: 16px; line-height: 30px">
+                  Thank you for reaching out to Barber Syndicate. We have
+                  successfully received your message and appreciate your
+                  interest in our services.
+                </p>
+
+                <p style="color: #4b5563; font-size: 16px; line-height: 30px">
+                  Our team is currently reviewing your inquiry. A member of our
+                  team will get back to you as soon as possible with the
+                  information or assistance you need.
+                </p>
+
+                <!-- Status Box -->
+                <table
+                  width="100%"
+                  cellpadding="0"
+                  cellspacing="0"
+                  border="0"
+                  style="
+                    margin-top: 30px;
+                    background: #f8fafc;
+                    border: 1px solid #e5e7eb;
+                    border-left: 5px solid #2563eb;
+                    border-radius: 12px;
+                  "
+                >
+                  <tr>
+                    <td style="padding: 25px">
+                      <h3
+                        style="
+                          margin: 0;
+                          color: #111827;
+                          font-size: 18px;
+                          font-weight: 600;
+                        "
+                      >
+                        Request Received Successfully
+                      </h3>
+
+                      <p
+                        style="
+                          margin: 12px 0 0;
+                          color: #6b7280;
+                          font-size: 15px;
+                          line-height: 26px;
+                        "
+                      >
+                        Your inquiry has been recorded in our system and is
+                        currently awaiting review by our support team.
+                      </p>
+                    </td>
+                  </tr>
+                </table>
+
+                <!-- Response Time -->
+                <table
+                  width="100%"
+                  cellpadding="0"
+                  cellspacing="0"
+                  border="0"
+                  style="
+                    margin-top: 25px;
+                    background: #eff6ff;
+                    border: 1px solid #dbeafe;
+                    border-radius: 12px;
+                  "
+                >
+                  <tr>
+                    <td style="padding: 22px">
+                      <h3
+                        style="
+                          margin: 0;
+                          color: #1e40af;
+                          font-size: 18px;
+                          font-weight: 600;
+                        "
+                      >
+                        Expected Response Time
+                      </h3>
+
+                      <p
+                        style="
+                          margin: 10px 0 0;
+                          color: #1e3a8a;
+                          line-height: 26px;
+                          font-size: 15px;
+                        "
+                      >
+                        Most inquiries receive a response within
+                        <strong>24 business hours.</strong>
+                      </p>
+                    </td>
+                  </tr>
+                </table>
+
+                <!-- Closing -->
+                <p
+                  style="
+                    margin-top: 35px;
+                    color: #4b5563;
+                    line-height: 30px;
+                    font-size: 16px;
+                  "
+                >
+                  We appreciate your patience and look forward to assisting you.
+                </p>
+
+                <!-- Signature -->
+                <div
+                  style="
+                    margin-top: 35px;
+                    padding-top: 25px;
+                    border-top: 1px solid #e5e7eb;
+                  "
+                >
+                  <p
+                    style="
+                      margin: 0;
+                      color: #111827;
+                      font-weight: 600;
+                      font-size: 16px;
+                    "
+                  >
+                    Best Regards,
+                  </p>
+
+                  <p style="margin: 8px 0 0; color: #4b5563; line-height: 28px">
+                    Barber Syndicate Team
+                  </p>
+                </div>
+              </td>
+            </tr>
+
+            <!-- Footer -->
+            <tr>
+              <td
+                style="
+                  background: #f9fafb;
+                  border-top: 1px solid #e5e7eb;
+                  padding: 30px;
+                  text-align: center;
+                "
+              >
+                <p
+                  style="
+                    margin: 0;
+                    color: #6b7280;
+                    font-size: 13px;
+                    line-height: 24px;
+                  "
+                >
+                  This is an automated confirmation email. Please do not reply
+                  directly to this message.
+                </p>
+
+                <p style="margin: 12px 0 0; color: #9ca3af; font-size: 13px">
+                  © ${new Date().getFullYear()} Barber Syndicate. All Rights
+                  Reserved.
+                </p>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
   </body>
 </html>
 `;
 
     const adminMailTemplate = (name, email, message) => `
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>New Mail From Website</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>New Contact Request</title>
+
     <style>
-      body,html{margin:0;padding:0;background:#f3f4f6;font-family:Inter,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;color:#111}
-      .wrapper{max-width:700px;margin:30px auto;padding:0 16px}
-      .card{background:#fff;border-radius:14px;box-shadow:0 4px 16px rgba(0,0,0,0.08);overflow:hidden}
-      .header{background:linear-gradient(135deg,#2563eb,#0ea5e9);color:#fff;text-align:center;padding:24px 20px}
-      .header h1{margin:0;font-size:22px;font-weight:600}
-      .body{padding:28px 24px}
-      .body h2{margin-top:0;color:#0f172a;font-size:18px}
-      .info{display:flex;flex-direction:column;gap:10px;margin:16px 0}
-      .info-item{background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:12px 14px}
-      .info-item strong{display:block;font-size:13px;color:#475569;margin-bottom:4px}
-      .message-box{background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:16px;font-size:14px;line-height:1.6;color:#0f172a;white-space:pre-wrap}
-      .footer{text-align:center;padding:18px;color:#94a3b8;font-size:12px;border-top:1px solid #f1f5f9;background:#fafafa}
+      body {
+        margin: 0;
+        padding: 0;
+        background: #f4f7fb;
+        font-family: "Poppins", "Segoe UI", Arial, sans-serif;
+      }
+
+      .container {
+        max-width: 700px;
+        margin: 40px auto;
+        background: #ffffff;
+        border-radius: 18px;
+        overflow: hidden;
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.06);
+      }
+
+      .header {
+        background: #111827;
+        padding: 35px 40px;
+      }
+
+      .brand {
+        color: #ffffff;
+        font-size: 28px;
+        font-weight: 700;
+      }
+
+      .subtitle {
+        color: #9ca3af;
+        margin-top: 8px;
+        font-size: 13px;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+      }
+
+      .badge {
+        display: inline-block;
+        margin-top: 15px;
+        background: #2563eb;
+        color: #fff;
+        padding: 10px 18px;
+        border-radius: 10px;
+        font-size: 13px;
+        font-weight: 600;
+      }
+
+      .content {
+        padding: 45px;
+      }
+
+      .title {
+        font-size: 30px;
+        font-weight: 700;
+        color: #111827;
+        margin: 0;
+      }
+
+      .description {
+        margin-top: 15px;
+        color: #6b7280;
+        line-height: 28px;
+        font-size: 16px;
+      }
+
+      .card {
+        margin-top: 20px;
+        background: #f8fafc;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        padding: 20px;
+      }
+
+      .label {
+        font-size: 12px;
+        font-weight: 600;
+        color: #94a3b8;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 8px;
+      }
+
+      .value {
+        color: #111827;
+        font-size: 17px;
+        font-weight: 600;
+      }
+
+      .email {
+        color: #2563eb;
+      }
+
+      .message-box {
+        margin-top: 20px;
+        background: #f9fafb;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        padding: 22px;
+        color: #374151;
+        line-height: 28px;
+        white-space: pre-wrap;
+      }
+
+      .info {
+        margin-top: 25px;
+        background: #eff6ff;
+        border: 1px solid #dbeafe;
+        border-radius: 12px;
+        padding: 20px;
+      }
+
+      .info-title {
+        color: #1d4ed8;
+        font-weight: 600;
+        margin-bottom: 10px;
+      }
+
+      .reply-btn {
+        display: inline-block;
+        margin-top: 30px;
+        background: #2563eb;
+        color: #ffffff !important;
+        text-decoration: none;
+        padding: 14px 28px;
+        border-radius: 10px;
+        font-weight: 600;
+      }
+
+      .footer {
+        background: #f9fafb;
+        border-top: 1px solid #e5e7eb;
+        text-align: center;
+        padding: 25px;
+        color: #94a3b8;
+        font-size: 13px;
+        line-height: 24px;
+      }
     </style>
   </head>
-  <body>
-    <div class="wrapper">
-      <div class="card">
-        <div class="header">
-          <h1>📩 New Message from Website</h1>
-        </div>
-        <div class="body">
-          <h2>New message received</h2>
 
-          <div class="info">
-            <div class="info-item">
-              <strong>👤 Name</strong>
-              ${name}
-            </div>
-            <div class="info-item">
-              <strong>✉️ Email</strong>
-              ${email}
-            </div>
-          </div>
+  <body>
+    <div class="container">
+      <div class="header">
+        <div class="brand">Barber Syndicate</div>
+
+        <div class="subtitle">Contact Form Notification</div>
+
+        <div class="badge">NEW LEAD</div>
+      </div>
+
+      <div class="content">
+        <h1 class="title">New Contact Form Submission</h1>
+
+        <p class="description">
+          A new inquiry has been submitted through your website. Review the
+          customer details below.
+        </p>
+
+        <div class="card">
+          <div class="label">Full Name</div>
+          <div class="value">${name}</div>
+        </div>
+
+        <div class="card">
+          <div class="label">Email Address</div>
+          <div class="value email">${email}</div>
+        </div>
+
+        <div style="margin-top: 25px">
+          <div class="label">Message</div>
+
+          <div class="message-box">${message}</div>
+        </div>
+
+        <div class="info">
+          <div class="info-title">Submission Information</div>
 
           <div>
-            <strong style="font-size:13px;color:#475569;">💬 Message</strong>
-            <div class="message-box">
-${message}
-            </div>
+            Submitted At:
+            <strong>${new Date().toLocaleString()}</strong>
           </div>
         </div>
 
-        <div class="footer">
-          Message sent from your website contact form — ${new Date().toLocaleDateString()}
-        </div>
+        <center>
+          <a href="mailto:${email}" class="reply-btn"> Reply to Customer </a>
+        </center>
+      </div>
+
+      <div class="footer">
+        This notification was automatically generated from your website contact
+        form.
+        <br />
+        © ${new Date().getFullYear()} Barber Syndicate. All Rights Reserved.
       </div>
     </div>
   </body>
 </html>
+
 `;
 
     // Correct call

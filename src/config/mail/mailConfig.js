@@ -1,24 +1,32 @@
 const nodemailer = require("nodemailer");
 const Transprter = nodemailer.createTransport({
-  service: "gmail",
-  host: "smtp.gmail.com",
-  port: 587,
-  secure: false,
+  host: "smtpout.secureserver.net",
+  port: 465,
+  secure: true,
   auth: {
     user: process.env.AppMail,
     pass: process.env.AppPassword,
   },
+  tls: {
+    rejectUnauthorized: false,
+  },
 });
 
 async function SentMail(to, subject, text, html) {
-  const info = await Transprter.sendMail({
-    from: "",
-    to,
-    subject,
-    text,
-    html,
-  });
-  return info.accepted.length !== 0 ? true : false;
+  try {
+    const info = await Transprter.sendMail({
+      from: `"Barber Syndicate" <${process.env.AppMail}>`,
+      to,
+      subject,
+      text,
+      html,
+    });
+    console.log("Mail Sent Config:", info.messageId);
+    return true;
+  } catch (error) {
+    console.log("'Mail Config Error:", error);
+    return false;
+  }
 }
 
 module.exports = SentMail;
