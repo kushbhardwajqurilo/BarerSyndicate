@@ -1561,12 +1561,12 @@ exports.sendMessageByUser = async (req, res, next) => {
 `;
 
     // Correct call
-    const sent = await SentMail(email, "", " ", sentHTML(name));
+    const sent = await SentMail(email, "Welcome", " ", sentHTML(name));
 
     const sentToMe = await SentMail(
       process.env.AppMail,
+      "New Lead",
       "",
-      " ",
       adminMailTemplate(name, email, message),
     );
     return res.status(200).json({
