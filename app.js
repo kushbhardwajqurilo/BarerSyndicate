@@ -31,6 +31,7 @@ const allowedOrigins = [
   "https://pl8p8f1d-3001.inc1.devtunnels.ms",
   "http://199.192.22.149:3021",
   "https://3846.in",
+  "https://k8jz7ljm-3000.inc1.devtunnels.ms",
 ];
 
 app.use(

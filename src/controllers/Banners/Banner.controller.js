@@ -2,14 +2,15 @@ const cloudinary = require("../../config/cloudinary/cloudinary");
 const fs = require("fs");
 const bannerModel = require("../../models/banner.model");
 const { default: mongoose } = require("mongoose");
+
+const { DeleteObjectCommand } = require("@aws-sdk/client-s3");
+const { deleteFileFromS3 } = require("../../config/aws/awsConfig");
 exports.addBanners = async (req, res, next) => {
   const { file } = req.body;
-  const { type, title, url } = req.body;
-  console.log(req.body);
-
+  const { type, title, url, key } = req.body;
   const insetData = {
     banner: file,
-    path_key: "xyz",
+    path_key: key,
     type,
     title: title,
     url,
@@ -88,38 +89,56 @@ exports.getAllBannersForAdmin = async (req, res, next) => {
     data: filteredBanner,
   });
 };
-exports.deleteBanner = async (req, res, next) => {
-  const { b_id } = req.query;
-  if (!b_id) {
-    return res.status(400).json({
-      status: false,
-      message: "banne id missing",
-    });
-  }
-  if (!mongoose.Types.ObjectId.isValid(b_id)) {
-    return res.status(400).json({
-      status: false,
-      message: "Invalid Banner Id",
-    });
-  }
-  const banner = await bannerModel.findById(b_id);
-  if (!banner) {
-    return res.status(400).json({
-      status: false,
-      message: "Banner not found",
-    });
-  }
-  const delete_from_cloud = await cloudinary.uploader.destroy(banner.path_key);
-  if (delete_from_cloud.result === "ok") {
+exports.deleteBanner = async (req, res) => {
+  try {
+    const { b_id } = req.query;
+
+    if (!b_id) {
+      return res.status(400).json({
+        status: false,
+        message: "Banner id missing",
+      });
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(b_id)) {
+      return res.status(400).json({
+        status: false,
+        message: "Invalid Banner Id",
+      });
+    }
+
+    const banner = await bannerModel.findById(b_id);
+
+    if (!banner) {
+      return res.status(404).json({
+        status: false,
+        message: "Banner not found",
+      });
+    }
+
+    // banner.path_key should contain S3 object key
+    // Example: banners/171922332-image.jpg
+    const deleted = await deleteFileFromS3(banner.path_key);
+
+    if (!deleted.success) {
+      return res.status(400).json({
+        status: false,
+        message: "Unable to delete banner from S3",
+      });
+    }
+
     await bannerModel.findByIdAndDelete(b_id);
-    return res.status(201).json({
+
+    return res.status(200).json({
       status: true,
-      message: "Banner Delete successfull",
+      message: "Banner deleted successfully",
     });
-  } else {
-    return res.status(400).json({
+  } catch (error) {
+    console.error("Delete Banner Error:", error);
+
+    return res.status(500).json({
       status: false,
-      message: "Unable to  delete banner",
+      message: "Internal Server Error",
     });
   }
 };

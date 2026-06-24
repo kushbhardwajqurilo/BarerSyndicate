@@ -1,4 +1,8 @@
-const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3");
+const {
+  S3Client,
+  PutObjectCommand,
+  DeleteObjectCommand,
+} = require("@aws-sdk/client-s3");
 const { getSignedUrl } = require("@aws-sdk/s3-request-presigner");
 const crypto = require("crypto");
 
@@ -44,7 +48,29 @@ const generatePresignUrl = async (req, res) => {
   }
 };
 
+const deleteFileFromS3 = async (key) => {
+  try {
+    await s3.send(
+      new DeleteObjectCommand({
+        Bucket: process.env.AWS_BUCKET_NAME,
+        Key: key,
+      }),
+    );
+
+    return {
+      success: true,
+    };
+  } catch (error) {
+    console.error("S3 Delete Error:", error);
+
+    return {
+      success: false,
+      error,
+    };
+  }
+};
 module.exports = {
   s3,
   generatePresignUrl,
+  deleteFileFromS3,
 };
